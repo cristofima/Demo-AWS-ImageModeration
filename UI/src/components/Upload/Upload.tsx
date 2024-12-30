@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import apiService from "../../services/api-service";
 import "./Upload.css";
+import { AxiosError } from "axios";
 
 const Upload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -27,8 +28,12 @@ const Upload = () => {
       setSelectedFile(null);
       (document.getElementById("file-input") as HTMLInputElement).value = "";
       toast.success("Image uploaded successfully");
-    } catch {
-      toast.error("Failed to upload image");
+    } catch (e: unknown) {
+      if (e instanceof AxiosError && e?.response?.data?.message) {
+        toast.error(e.response.data.message);
+      } else {
+        toast.error("Failed to upload image");
+      }
     } finally {
       setIsUploading(false);
     }

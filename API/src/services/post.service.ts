@@ -41,6 +41,7 @@ export class PostService {
     async findById(id: string) {
         const post = await this.postModel.findById(id);
         if (!post) throw new BadRequestException({
+            statusCode: 400,
             message: 'Post not found'
         });
 
@@ -50,6 +51,7 @@ export class PostService {
     async delete(id: string): Promise<void> {
         const post = await this.postModel.findById(id);
         if (!post) throw new BadRequestException({
+            statusCode: 400,
             message: 'Post not found'
         });
 
@@ -81,11 +83,6 @@ export class PostService {
                 Body: file.buffer,
                 ContentType: file.mimetype,
                 CacheControl: 'max-age=21600',
-                /*Metadata: {
-                    'Cache-Control': 'max-age=21600',
-                    'Content-Type': file.mimetype,
-                    'ACL': 'public-read',
-                }*/
             })
             .promise();
 
@@ -105,6 +102,7 @@ export class PostService {
                 .promise();
 
             throw new BadRequestException({
+                statusCode: 400,
                 message: 'Image rejected',
             });
         }
