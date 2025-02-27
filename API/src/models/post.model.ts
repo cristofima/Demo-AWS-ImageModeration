@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class PostModel {
     @ApiProperty()
-    id: string;
+    id: number;
 
     @ApiProperty()
     imageIsBlurred: boolean;

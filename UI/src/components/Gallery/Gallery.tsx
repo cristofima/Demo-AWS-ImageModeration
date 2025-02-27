@@ -1,22 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
-import "./Gallery.css";
 import ImageModal from "./ImageModal";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { ClipLoader } from "react-spinners";
+
+const fetchImages = async (page: number) => {
+  const response = await apiService.getImages(page);
+  return response.data;
+};
 
 const Gallery = () => {
-  const [images, setImages] = useState<Image[]>([]);
+  const { images, setImages, isLoading, observerRef } =
+    useInfiniteScroll(fetchImages);
   const [selectedImage, setSelectedImage] = useState<Image>();
-
-  useEffect(() => {
-    loadImages();
-  }, []);
-
-  const loadImages = async () => {
-    const response = await apiService.getImages();
-    const updatedImages = response.data;
-    setImages(updatedImages);
-  };
 
   const toggleBlur = (id: string) => {
     setImages((prevImages) =>
@@ -62,7 +59,13 @@ const Gallery = () => {
             ></div>
           </div>
         ))}
+        <div ref={observerRef} className="h-10"></div>
       </div>
+      {isLoading && (
+        <div className="loading-container">
+          <ClipLoader color="#3498db" size={80} />
+        </div>
+      )}
       {selectedImage && (
         <ImageModal
           image={selectedImage}
