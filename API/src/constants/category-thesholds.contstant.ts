@@ -1,29 +1,29 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const thresholds: { [key: string]: { [key: string]: { blur?: number; reject?: number;[key: string]: { blur: number; reject: number } | number } } } = {
+export const thresholds: { [key: string]: { [key: string]: { blur?: number; reject?: number; [key: string]: { blur: number; reject: number } | number } } } = {
     "Explicit": {
         "Explicit Nudity": {
             blur: 40, reject: 75,
             "Exposed Male Genitalia": { blur: 40, reject: 70 },
             "Exposed Female Genitalia": { blur: 40, reject: 70 },
-            "Exposed Buttocks or Anus": { blur: 60, reject: 80 },
-            "Exposed Female Nipple": { blur: 50, reject: 70 }
+            "Exposed Buttocks or Anus": { blur: 60, reject: 85 },
+            "Exposed Female Nipple": { blur: 50, reject: 75 }
         },
-        "Explicit Sexual Activity": { blur: 50, reject: 70 },
-        "Sex Toys": { blur: 60, reject: 80 }
+        "Explicit Sexual Activity": { blur: 50, reject: 75 },
+        "Sex Toys": { blur: 60, reject: 85 }
     },
     "Non-Explicit Nudity of Intimate parts and Kissing": {
         "Non-Explicit Nudity": {
             blur: 50, reject: 97,
-            "Bare Back": { blur: 50, reject: 95 },
-            "Exposed Male Nipple": { blur: 50, reject: 85 },
-            "Partially Exposed Buttocks": { blur: 65, reject: 95 },
-            "Partially Exposed Female Breast": { blur: 50, reject: 95 },
-            "Implied Nudity": { blur: 50, reject: 75 }
+            "Bare Back": { blur: 70, reject: 95 },
+            "Exposed Male Nipple": { blur: 50, reject: 90 },
+            "Partially Exposed Buttocks": { blur: 65, reject: 97 },
+            "Partially Exposed Female Breast": { blur: 65, reject: 97 },
+            "Implied Nudity": { blur: 55, reject: 80 }
         },
         "Obstructed Intimate Parts": {
             blur: 45, reject: 97,
-            "Obstructed Female Nipple": { blur: 50, reject: 95 },
-            "Obstructed Male Genitalia": { blur: 50, reject: 95 }
+            "Obstructed Female Nipple": { blur: 55, reject: 95 },
+            "Obstructed Male Genitalia": { blur: 55, reject: 95 }
         }
     },
     "Swimwear or Underwear": {
@@ -31,44 +31,44 @@ export const thresholds: { [key: string]: { [key: string]: { blur?: number; reje
         "Male Swimwear or Underwear": { blur: 80, reject: 99 }
     },
     "Violence": {
-        "Weapons": { blur: 5, reject: 0.7 },
+        "Weapons": { blur: 50, reject: 80 },
         "Graphic Violence": {
-            "Weapon Violence": { blur: 0.7, reject: 0.9 },
-            "Physical Violence": { blur: 0.6, reject: 0.8 },
-            "Self-Harm": { blur: 0.7, reject: 0.9 },
-            "Blood & Gore": { blur: 0.6, reject: 0.8 },
-            "Explosions and Blasts": { blur: 0.5, reject: 0.7 }
+            "Weapon Violence": { blur: 60, reject: 85 },
+            "Physical Violence": { blur: 60, reject: 85 },
+            "Self-Harm": { blur: 70, reject: 90 },
+            "Blood & Gore": { blur: 70, reject: 90 },
+            "Explosions and Blasts": { blur: 60, reject: 85 }
         }
     },
     "Visually Disturbing": {
         "Death and Emaciation": {
-            blur: 60, reject: 80,
-            "Emaciated Bodies": { blur: 0.8, reject: 0.9 },
-            "Corpses": { blur: 0.9, reject: 0.95 }
+            blur: 70, reject: 90,
+            "Emaciated Bodies": { blur: 70, reject: 90 },
+            "Corpses": { blur: 80, reject: 95 }
         },
         "Crashes": {
-            "Air Crash": { blur: 0.7, reject: 0.9 }
+            "Air Crash": { blur: 60, reject: 85 }
         }
     },
     "Drugs & Tobacco": {
         "Products": {
-            "Pills": { blur: 0.3, reject: 0.5 }
+            "Pills": { blur: 50, reject: 75 }
         },
         "Drugs & Tobacco Paraphernalia & Use": {
-            "Smoking": { blur: 0.2, reject: 0.4 }
+            "Smoking": { blur: 50, reject: 70 }
         }
     },
     "Alcohol": {
         "Alcohol Use": {
-            "Drinking": { blur: 0.1, reject: 0.2 }
+            "Drinking": { blur: 30, reject: 50 }
         }
     },
     "Rude Gestures": {
-        "Middle Finger": { blur: 0, reject: 0.6 }
+        "Middle Finger": { blur: 30, reject: 70 }
     },
     "Hate Symbols": {
-        "Nazi Party": { blur: 50, reject: 8 },
-        "White Supremacy": { blur: 0, reject: 0.8 },
-        "Extremist": { blur: 0, reject: 0.8 }
+        "Nazi Party": { blur: 70, reject: 90 },
+        "White Supremacy": { blur: 70, reject: 90 },
+        "Extremist": { blur: 70, reject: 90 }
     }
 };

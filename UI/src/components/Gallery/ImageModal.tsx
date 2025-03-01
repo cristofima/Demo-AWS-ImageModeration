@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
@@ -17,20 +17,23 @@ const ImageModal: React.FC<ImageModalProps> = ({
   onDelete,
 }) => {
   const [isBlurred, setIsBlurred] = useState(image.imageIsBlurred);
+  const [isDeleting, startTransition] = useTransition();
 
   const toggleBlur = () => {
     setIsBlurred((prev) => !prev);
   };
 
-  const handleDelete = async () => {
-    try {
-      await apiService.deleteImage(image.id);
-      toast.success("Image deleted successfully");
-      onDelete();
-      onClose();
-    } catch {
-      toast.error("Failed to delete image");
-    }
+  const handleDelete = () => {
+    startTransition(async () => {
+      try {
+        await apiService.deleteImage(image.id);
+        toast.success("Image deleted successfully");
+        onDelete();
+        onClose();
+      } catch {
+        toast.error("Failed to delete image");
+      }
+    });
   };
 
   return (
@@ -49,8 +52,12 @@ const ImageModal: React.FC<ImageModalProps> = ({
           Uploaded on: {new Date(image.createdAt).toLocaleString()}
         </p>
         <div className="modal-actions">
-          <button onClick={handleDelete} className="button delete-button">
-            Delete
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="button delete-button"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
           </button>
           <button className="button close-button" onClick={onClose}>
             Close

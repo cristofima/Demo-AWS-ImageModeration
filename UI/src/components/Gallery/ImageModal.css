@@ -16,7 +16,6 @@
   background: white;
   border-radius: 10px;
   max-width: 90%;
-  max-height: 90%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -35,6 +34,11 @@
 }
 
 .delete-button {
+  background-color: rgb(204, 31, 31);
+  transition: background-color 0.3s;
+}
+
+.delete-button:hover {
   background-color: red;
 }
 

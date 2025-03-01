@@ -26,8 +26,3 @@
 .upload-button:hover {
   background-color: #0056b3;
 }
-
-.upload-button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
