@@ -14,8 +14,9 @@ const Gallery = () => {
   const { images, setImages, isLoading, observerRef } =
     useInfiniteScroll(fetchImages);
   const [selectedImage, setSelectedImage] = useState<Image>();
+  const [loadedImages, setLoadedImages] = useState<number[]>([]);
 
-  const toggleBlur = (id: string) => {
+  const toggleBlur = (id: number) => {
     setImages((prevImages) =>
       prevImages.map((img) =>
         img.id === id ? { ...img, imageIsBlurred: !img.imageIsBlurred } : img
@@ -36,6 +37,10 @@ const Gallery = () => {
     setImages(updatedImages);
   };
 
+  const handleImageLoad = (id: number) => {
+    setLoadedImages((prevLoadedImages) => [...prevLoadedImages, id]);
+  };
+
   return (
     <div className="gallery-container">
       <div className="gallery-grid">
@@ -44,8 +49,12 @@ const Gallery = () => {
             key={image.id}
             className={`gallery-item ${image.imageIsBlurred ? "blurred" : ""}`}
           >
-            <img src={image.imagePath} alt="Uploaded" />
-            {image.imageIsBlurred && (
+            <img
+              src={image.imagePath}
+              alt="Uploaded"
+              onLoad={() => handleImageLoad(image.id)}
+            />
+            {image.imageIsBlurred && loadedImages.includes(image.id) && (
               <button
                 className="toggle-blur-button"
                 onClick={() => toggleBlur(image.id)}

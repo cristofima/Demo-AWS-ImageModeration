@@ -1,5 +1,5 @@
 export interface Image {
-    id: string;
+    id: number;
     imagePath: string;
     imageIsBlurred: boolean;
     createdAt: Date;
