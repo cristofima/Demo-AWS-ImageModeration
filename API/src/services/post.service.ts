@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import * as AWS from 'aws-sdk';
+import { Rekognition } from '@aws-sdk/client-rekognition';
+import { Upload } from '@aws-sdk/lib-storage';
+import { S3 } from '@aws-sdk/client-s3';
 import { Post } from 'src/entities/post.entity';
 import { ModerationUtil } from 'src/utils/moderation.util';
 import { PostUtil } from 'src/utils/post.util';
@@ -14,23 +16,29 @@ export interface ModerationResult {
 
 @Injectable()
 export class PostService {
-  private rekognition: AWS.Rekognition;
-  private s3: AWS.S3;
+  private rekognition: Rekognition;
+  private s3: S3;
 
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
   ) {
-    this.s3 = new AWS.S3({
+    this.s3 = new S3({
       region: process.env.AWS_S3_REGION,
-      accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+
+      credentials: {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+      },
     });
 
-    this.rekognition = new AWS.Rekognition({
+    this.rekognition = new Rekognition({
       region: process.env.AWS_REKOGNITION_REGION,
-      accessKeyId: process.env.AWS_REKOGNITION_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_REKOGNITION_SECRET_ACCESS_KEY,
+
+      credentials: {
+        accessKeyId: process.env.AWS_REKOGNITION_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_REKOGNITION_SECRET_ACCESS_KEY,
+      },
     });
   }
 
@@ -38,6 +46,7 @@ export class PostService {
     const posts = await this.postRepository.find({
       skip: (page - 1) * limit,
       take: limit,
+      select: ['id', 'imagePath', 'imageIsBlurred', 'createdAt'],
       order: { createdAt: 'DESC' },
     });
 
@@ -46,12 +55,12 @@ export class PostService {
 
     return {
       data: posts.map(PostUtil.mapToPostModel),
-      metadata:{
+      metadata: {
         page: page,
         limit: limit,
         totalRecords: total,
         totalPages: totalPages,
-      }
+      },
     };
   }
 
@@ -76,14 +85,12 @@ export class PostService {
 
     // Delete from S3
     const bucketName = process.env.AWS_S3_BUCKET_NAME;
-    await this.s3
-      .deleteObject({
-        Bucket: bucketName,
-        Key: post.imagePath,
-      })
-      .promise();
+    await this.s3.deleteObject({
+      Bucket: bucketName,
+      Key: post.imagePath,
+    });
 
-    // Delete from MongoDB
+    // Delete from DB
     await this.postRepository.delete({ id: id });
   }
 
@@ -95,32 +102,31 @@ export class PostService {
     const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
     // Upload to S3
-    await this.s3
-      .upload({
+    await new Upload({
+      client: this.s3,
+      params: {
         Bucket: bucketName,
         Key: imagePath,
         Body: file.buffer,
         ContentType: file.mimetype,
         CacheControl: 'max-age=21600',
-      })
-      .promise();
+      },
+    }).done();
 
     // Rekognition
-    const moderationResult = await this.rekognition
-      .detectModerationLabels({ Image: { Bytes: file.buffer } })
-      .promise();
+    const moderationResult = await this.rekognition.detectModerationLabels({
+      Image: { Bytes: file.buffer },
+    });
 
     const status = ModerationUtil.getModerationStatus(
       moderationResult.ModerationLabels,
     );
 
     if (status === 'REJECTED') {
-      await this.s3
-        .deleteObject({
-          Bucket: bucketName,
-          Key: imagePath,
-        })
-        .promise();
+      await this.s3.deleteObject({
+        Bucket: bucketName,
+        Key: imagePath,
+      });
 
       throw new BadRequestException({
         statusCode: 400,

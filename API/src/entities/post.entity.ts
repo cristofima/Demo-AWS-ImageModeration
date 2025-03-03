@@ -1,11 +1,10 @@
-import { ModerationLabel } from 'aws-sdk/clients/rekognition';
+import { ModerationLabel } from '@aws-sdk/client-rekognition';
 
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  BeforeInsert,
 } from 'typeorm';
 
 @Entity({ name: 'Posts' })
