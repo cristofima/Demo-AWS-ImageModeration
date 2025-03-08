@@ -135,7 +135,7 @@ export class PostService {
     }
 
     const imageIsBlurred = status === 'BLURRED';
-    let post: Partial<Post> = {
+    const post: Partial<Post> = {
       imagePath: imagePath,
       imageIsBlurred: imageIsBlurred,
       moderationLabels: moderationResult.ModerationLabels,

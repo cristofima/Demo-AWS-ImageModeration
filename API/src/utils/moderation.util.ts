@@ -1,5 +1,5 @@
 import { ModerationLabel } from '@aws-sdk/client-rekognition';
-import { thresholds } from 'src/constants/category-thesholds.contstant';
+import { thresholds } from 'src/constants/category-thresholds.constant';
 import { Hierarchy } from 'src/types/hierarchy.type';
 import { Status } from 'src/types/status.type';
 
