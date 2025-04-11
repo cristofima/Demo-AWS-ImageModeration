@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useCallback } from "react";
 import { toast } from "react-toastify";
 import apiService from "../../services/api-service";
 import "./Upload.css";
@@ -8,12 +8,12 @@ const Upload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, startTransition] = useTransition();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setSelectedFile(file);
-  };
+  }, []);
 
-  const handleUpload = () => {
+  const handleUpload = useCallback(() => {
     if (!selectedFile) {
       toast.error("No file selected");
       return;
@@ -36,7 +36,7 @@ const Upload = () => {
         }
       }
     });
-  };
+  }, [selectedFile]);
 
   return (
     <div className="upload-container">
@@ -59,4 +59,4 @@ const Upload = () => {
   );
 };
 
-export default Upload;
+export default React.memo(Upload);

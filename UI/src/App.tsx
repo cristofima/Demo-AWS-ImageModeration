@@ -39,4 +39,4 @@ const App: React.FC = () => (
   </Router>
 );
 
-export default App;
+export default React.memo(App);

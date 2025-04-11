@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Image } from "../models/image.model";
 import { Pagination } from "../models/pagination,model";
 
@@ -9,16 +9,21 @@ export const useInfiniteScroll = (fetchImages: (page: number) => Promise<Paginat
   const [isLoading, setIsLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const loadImages = async () => {
+  const loadImages = useCallback(async () => {
     if (isLoading) return;
 
     setIsLoading(true); 
     const pagination = await fetchImages(page);
     
-    setImages((prev) => [...prev, ...pagination.data]);
+    setImages((prev) => {
+      const newImages = pagination.data.filter(
+        (newImage) => !prev.some((image) => image.id === newImage.id)
+      );
+      return [...prev, ...newImages];
+    });
     setHasMore(page < pagination.metadata.totalPages);
     setIsLoading(false);
-  };
+  }, [fetchImages, isLoading, page]);
 
   useEffect(() => {
     loadImages();

@@ -1,4 +1,4 @@
-import { useState, useTransition } from "react";
+import React, { useState, useTransition, useCallback } from "react";
 import { toast } from "react-toastify";
 import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
@@ -19,11 +19,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const [isBlurred, setIsBlurred] = useState(image.imageIsBlurred);
   const [isDeleting, startTransition] = useTransition();
 
-  const toggleBlur = () => {
+  const toggleBlur = useCallback(() => {
     setIsBlurred((prev) => !prev);
-  };
+  }, []);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     startTransition(async () => {
       try {
         await apiService.deleteImage(image.id);
@@ -34,7 +34,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         toast.error("Failed to delete image");
       }
     });
-  };
+  }, [image.id, onDelete, onClose]);
 
   return (
     <>
@@ -68,4 +68,4 @@ const ImageModal: React.FC<ImageModalProps> = ({
   );
 };
 
-export default ImageModal;
+export default React.memo(ImageModal);

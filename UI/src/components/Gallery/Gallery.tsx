@@ -1,45 +1,45 @@
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
 import ImageModal from "./ImageModal";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import { ClipLoader } from "react-spinners";
 
-const fetchImages = async (page: number) => {
-  const response = await apiService.getImages(page);
-  return response.data;
-};
-
 const Gallery = () => {
+  const fetchImages = useCallback(async (page: number) => {
+    const response = await apiService.getImages(page);
+    return response.data;
+  }, []);
+
   const { images, setImages, isLoading, observerRef } =
     useInfiniteScroll(fetchImages);
   const [selectedImage, setSelectedImage] = useState<Image>();
   const [loadedImages, setLoadedImages] = useState<number[]>([]);
 
-  const toggleBlur = (id: number) => {
+  const toggleBlur = useCallback((id: number) => {
     setImages((prevImages) =>
       prevImages.map((img) =>
         img.id === id ? { ...img, imageIsBlurred: !img.imageIsBlurred } : img
       )
     );
-  };
+  }, [setImages]);
 
-  const handleImageClick = (image: Image) => {
+  const handleImageClick = useCallback((image: Image) => {
     setSelectedImage(image);
-  };
+  }, []);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setSelectedImage(undefined);
-  };
+  }, []);
 
-  const handleImageDelete = () => {
+  const handleImageDelete = useCallback(() => {
     const updatedImages = images.filter((img) => img.id !== selectedImage?.id);
     setImages(updatedImages);
-  };
+  }, [images, selectedImage, setImages]);
 
-  const handleImageLoad = (id: number) => {
+  const handleImageLoad = useCallback((id: number) => {
     setLoadedImages((prevLoadedImages) => [...prevLoadedImages, id]);
-  };
+  }, []);
 
   return (
     <div className="gallery-container">
@@ -86,4 +86,4 @@ const Gallery = () => {
   );
 };
 
-export default Gallery;
+export default React.memo(Gallery);
