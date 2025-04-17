@@ -21,6 +21,12 @@ export class Post {
   @Column('json', { name: 'ModerationLabels', default: {} })
   moderationLabels: ModerationLabel[];
 
+  @Column({ name: 'UserId' })
+  userId: string;
+
   @CreateDateColumn({ name: 'CreatedAt', type: 'timestamp' })
   createdAt: Date;
+
+  @Column({ name: 'CreatedBy' })
+  createdBy: string;
 }

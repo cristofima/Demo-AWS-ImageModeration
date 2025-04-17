@@ -4,6 +4,8 @@ import { PostController } from './controllers/post.controller';
 import { PostService } from './services/post.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -20,8 +22,9 @@ import { Post } from './entities/post.entity';
       synchronize: false,
     }),
     TypeOrmModule.forFeature([Post]),
+    PassportModule,
   ],
   controllers: [PostController],
-  providers: [PostService],
+  providers: [PostService, JwtStrategy],
 })
 export class AppModule { }

@@ -11,6 +11,8 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
+  Request
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PostService } from '../services/post.service';
@@ -23,8 +25,11 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { PostModel } from './../models/post.model';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { UserModel } from 'src/models/user.model';
 
 @Controller('api/posts')
+@UseGuards(JwtAuthGuard)
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
@@ -37,8 +42,10 @@ export class PostController {
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Request() req: any,
   ) {
-    return this.postService.findAll(Number(page), Number(limit));
+    const userId: string = req.user.userId;
+    return this.postService.findAll(Number(page), Number(limit), userId);
   }
 
   @Get(':id')
@@ -82,8 +89,10 @@ export class PostController {
       }),
     )
     file: Express.Multer.File,
+    @Request() req: any,
   ) {
-    return await this.postService.create(file);
+    const user: UserModel = req.user;
+    return await this.postService.create(file, user);
   }
 
   @Delete(':id')
@@ -94,7 +103,8 @@ export class PostController {
   @ApiNotFoundResponse({
     description: 'Post not found.',
   })
-  async delete(@Param('id') id: number) {
-    await this.postService.delete(id);
+  async delete(@Param('id') id: number, @Request() req: any) {
+    const userId: string = req.user.userId;
+    await this.postService.delete(id, userId);
   }
 }

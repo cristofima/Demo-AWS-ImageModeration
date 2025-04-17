@@ -8,6 +8,7 @@ import { PostUtil } from 'src/utils/post.util';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserModel } from 'src/models/user.model';
 
 export interface ModerationResult {
   status: 'APPROVED' | 'BLURRED' | 'REJECTED';
@@ -42,15 +43,18 @@ export class PostService {
     });
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, userId: string) {
     const posts = await this.postRepository.find({
       skip: (page - 1) * limit,
       take: limit,
-      select: ['id', 'imagePath', 'imageIsBlurred', 'createdAt'],
+      select: ['id', 'imagePath', 'imageIsBlurred', 'createdAt', 'createdBy'],
       order: { createdAt: 'DESC' },
+      where: { userId: userId },
     });
 
-    const total = await this.postRepository.count();
+    const total = await this.postRepository.count({
+      where: { userId: userId },
+    });
     const totalPages = Math.ceil(total / limit);
 
     return {
@@ -75,13 +79,20 @@ export class PostService {
     return PostUtil.mapToPostModel(post);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number, userId: string): Promise<void> {
     const post = await this.postRepository.findOneById(id);
     if (!post)
       throw new BadRequestException({
         statusCode: 400,
         message: 'Post not found',
       });
+
+    if (post.userId !== userId){
+      throw new BadRequestException({
+        statusCode: 401,
+        message: 'You are not authorized to delete this post',
+      });
+    }
 
     // Delete from S3
     const bucketName = process.env.AWS_S3_BUCKET_NAME;
@@ -94,7 +105,7 @@ export class PostService {
     await this.postRepository.delete({ id: id });
   }
 
-  async create(file: Express.Multer.File) {
+  async create(file: Express.Multer.File, user: UserModel) {
     const uuid = uuidv4();
     const folder = process.env.AWS_S3_BUCKET_FOLDER;
     const fileExtension = file.originalname.split('.').pop();
@@ -110,6 +121,9 @@ export class PostService {
         Body: file.buffer,
         ContentType: file.mimetype,
         CacheControl: 'max-age=21600',
+        Metadata: {
+          userName: user.nickname,
+        },
       },
     }).done();
 
@@ -140,6 +154,8 @@ export class PostService {
       imageIsBlurred: imageIsBlurred,
       moderationLabels: moderationResult.ModerationLabels,
       createdAt: new Date(),
+      userId: user.userId,
+      createdBy: user.nickname,
     };
 
     this.postRepository.create(post);

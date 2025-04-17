@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Image } from "../models/image.model";
-import { Pagination } from "../models/pagination,model";
+import { Pagination } from "../models/pagination.model";
 
-export const useInfiniteScroll = (fetchImages: (page: number) => Promise<Pagination>) => {
+export const useInfiniteScroll = (
+  fetchImages: (page: number) => Promise<Pagination>
+) => {
   const [images, setImages] = useState<Image[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -12,17 +14,24 @@ export const useInfiniteScroll = (fetchImages: (page: number) => Promise<Paginat
   const loadImages = useCallback(async () => {
     if (isLoading) return;
 
-    setIsLoading(true); 
-    const pagination = await fetchImages(page);
-    
-    setImages((prev) => {
-      const newImages = pagination.data.filter(
-        (newImage) => !prev.some((image) => image.id === newImage.id)
-      );
-      return [...prev, ...newImages];
-    });
-    setHasMore(page < pagination.metadata.totalPages);
-    setIsLoading(false);
+    setIsLoading(true);
+
+    try {
+      const pagination = await fetchImages(page);
+
+      setImages((prev) => {
+        const newImages = pagination.data.filter(
+          (newImage) => !prev.some((image) => image.id === newImage.id)
+        );
+        return [...prev, ...newImages];
+      });
+
+      setHasMore(page < pagination.metadata.totalPages);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [fetchImages, isLoading, page]);
 
   useEffect(() => {

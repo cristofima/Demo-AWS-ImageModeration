@@ -12,4 +12,7 @@ export class PostModel {
 
     @ApiProperty()
     createdAt: Date;
+
+    @ApiProperty()
+    createdBy: string;
 }
