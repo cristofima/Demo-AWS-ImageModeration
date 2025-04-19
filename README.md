@@ -19,20 +19,44 @@ This project analyzes the content of uploaded images to ensure compliance with m
 - **Language**: TypeScript
 - **Styling**: CSS
 - **Libraries**: Axios
+- **Cloud Services**: AWS Cognito, AWS Amplify
 
 ## Project Structure
 
 ```
 API/
   ├── src/
-  │   ├── constants/
-  │   ├── controllers/
-  │   ├── dto/
-  │   ├── entities/
-  │   ├── models/
-  │   ├── services/
-  │   ├── types/
-  │   ├── utils/
+  │   ├── application/
+  │   │   └── post/
+  │   │       ├── dto/
+  │   │       │   └── create-post.dto.ts
+  │   │       ├── mapper/
+  │   │       │   └── post.mapper.ts
+  │   │       ├── models/
+  │   │       │   └── post.model.ts
+  │   │       ├── post.controller.ts
+  │   │       ├── post.module.ts
+  │   │       └── post.service.ts
+  │   ├── domain/
+  │   │   ├── constants/
+  │   │   │   └── category-thresholds.constant.ts
+  │   │   ├── entities/
+  │   │   │   └── post.entity.ts
+  │   │   └── types/
+  │   │       ├── hierarchy.type.ts
+  │   │       └── status.type.ts
+  │   ├── infrastructure/
+  │   │   ├── auth/
+  │   │   │   ├── auth.module.ts
+  │   │   │   ├── jwt-auth.guard.ts
+  │   │   │   ├── jwt.strategy.ts
+  │   │   │   └── user.model.ts
+  │   │   ├── aws/
+  │   │   │   │── rekognition.service.ts
+  │   │   │   └── s3.service.ts
+  │   ├── shared/
+  │   │   └── utils/
+  │   │       └── moderation.util.ts
   │   ├── app.module.ts
   │   ├── config.ts
   │   └── main.ts
@@ -48,6 +72,7 @@ UI/
   ├── src/
   │   ├── components/
   │   ├── hooks/
+  │   ├── interceptors/
   │   ├── models/
   │   ├── services/
   │   ├── App.tsx
@@ -71,7 +96,7 @@ UI/
 - Node.js (v20 or higher)
 - npm or yarn
 - PostgreSQL
-- AWS Account with S3 and Rekognition services enabled
+- AWS Account with S3, Rekognition, and Cognito services enabled
 
 ### Backend (API)
 
@@ -97,6 +122,10 @@ UI/
    DB_USER=
    DB_PASSWORD=
    DB_HOST=
+
+   COGNITO_APP_CLIENT_ID=
+   COGNITO_APP_REGION=
+   COGNITO_USER_POOL_ID=
 
    AWS_S3_ACCESS_KEY=
    AWS_S3_SECRET_ACCESS_KEY=
@@ -170,6 +199,7 @@ The system classifies images into different categories based on AWS Rekognition'
         "id": 41,
         "imageIsBlurred": false,
         "createdAt": "2025-03-01T02:20:34.639Z",
+        "createdBy": "user",
         "imagePath": "https://demo.s3.us-west-2.amazonaws.com/images/3.jpg"
     }
   ```
@@ -177,7 +207,7 @@ The system classifies images into different categories based on AWS Rekognition'
 ### **Get Images**
 
 - **Endpoint:** `GET /api/Posts?page=1&limit=12`
-- **Description:** Retrieves images (Posts).
+- **Description:** Retrieves images (Posts) for the authenticated user.
 - **Response:**
   ```json
     {
@@ -186,21 +216,22 @@ The system classifies images into different categories based on AWS Rekognition'
                 "id": 40,
                 "imageIsBlurred": true,
                 "createdAt": "2025-02-28T21:16:01.583Z",
+                "createdBy": "user",
                 "imagePath": "https://demo.s3.us-west-2.amazonaws.com/images/2.jpg"
             },
             {
                 "id": 39,
                 "imageIsBlurred": true,
                 "createdAt": "2025-02-27T01:44:18.111Z",
+                "createdBy": "user",
                 "imagePath": "https://demo.s3.us-west-2.amazonaws.com/images/1.jpg"
-            },
-            ...
+            }
         ],
         "metadata": {
             "page": 1,
             "limit": 8,
-            "totalRecords": 38,
-            "totalPages": 5
+            "totalRecords": 2,
+            "totalPages": 1
         }
     }
   ```

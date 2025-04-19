@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PostController } from './controllers/post.controller';
-import { PostService } from './services/post.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Post } from './entities/post.entity';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { PassportModule } from '@nestjs/passport';
+import { PostModule } from './application/post/post.module';
+import { AuthModule } from './infrastructure/auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -17,14 +17,12 @@ import { PassportModule } from '@nestjs/passport';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Post],
+      autoLoadEntities: true,
       schema: 'public',
       synchronize: false,
     }),
-    TypeOrmModule.forFeature([Post]),
-    PassportModule,
+    AuthModule,
+    PostModule,
   ],
-  controllers: [PostController],
-  providers: [PostService, JwtStrategy],
 })
-export class AppModule { }
+export class AppModule {}

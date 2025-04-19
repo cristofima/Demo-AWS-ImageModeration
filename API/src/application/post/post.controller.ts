@@ -12,10 +12,10 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
-  Request
+  Request,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PostService } from '../services/post.service';
+import { PostService } from './post.service';
 import {
   ApiBody,
   ApiConsumes,
@@ -24,9 +24,9 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { PostModel } from './../models/post.model';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { UserModel } from 'src/models/user.model';
+import { PostModel } from './models/post.model';
+import { JwtAuthGuard } from 'src/infrastructure/auth/jwt-auth.guard';
+import { UserModel } from 'src/infrastructure/auth/user.model';
 
 @Controller('api/posts')
 @UseGuards(JwtAuthGuard)
