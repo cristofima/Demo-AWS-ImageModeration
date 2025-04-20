@@ -8,6 +8,7 @@ import { getModerationStatus } from 'src/shared/utils/moderation.util';
 import { mapToPostModel } from 'src/application/post/mapper/post.mapper';
 import { UserModel } from 'src/infrastructure/auth/user.model';
 import { v4 as uuidv4 } from 'uuid';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PostService {
@@ -16,6 +17,7 @@ export class PostService {
     private readonly postRepository: Repository<Post>,
     private readonly s3Service: S3Service,
     private readonly rekognitionService: RekognitionService,
+    private readonly configService: ConfigService,
   ) {}
 
   async findAll(page: number, limit: number, userId: string) {
@@ -58,7 +60,7 @@ export class PostService {
     }
 
     await this.s3Service.deleteFile(
-      process.env.AWS_S3_BUCKET_NAME,
+      this.configService.get<string>('AWS_S3_BUCKET_NAME'),
       post.imagePath,
     );
     await this.postRepository.delete({ id });
@@ -66,12 +68,13 @@ export class PostService {
 
   async create(file: Express.Multer.File, user: UserModel) {
     const uuid = uuidv4();
-    const folder = process.env.AWS_S3_BUCKET_FOLDER;
+    const folder = this.configService.get<string>('AWS_S3_BUCKET_FOLDER');
+    const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
     const fileExtension = file.originalname.split('.').pop();
     const imagePath = `${folder}/${uuid}.${fileExtension}`;
 
     await this.s3Service.uploadFile(
-      process.env.AWS_S3_BUCKET_NAME,
+      bucket,
       imagePath,
       file.buffer,
       file.mimetype,
@@ -85,10 +88,7 @@ export class PostService {
     const status = getModerationStatus(moderationLabels);
 
     if (status === 'REJECTED') {
-      await this.s3Service.deleteFile(
-        process.env.AWS_S3_BUCKET_NAME,
-        imagePath,
-      );
+      await this.s3Service.deleteFile(bucket, imagePath);
       throw new BadRequestException('Image rejected');
     }
 

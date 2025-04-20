@@ -3,13 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import * as jwksRsa from 'jwks-rsa';
 import { UserModel } from './user.model';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    const region = process.env.COGNITO_APP_REGION;
-    const userPoolId = process.env.COGNITO_USER_POOL_ID;
-    const clientId = process.env.COGNITO_APP_CLIENT_ID;
+  constructor(configService: ConfigService) {
+    const region = configService.get<string>('COGNITO_APP_REGION');
+    const userPoolId = configService.get<string>('COGNITO_USER_POOL_ID');
+    const clientId = configService.get<string>('COGNITO_APP_CLIENT_ID');
 
     if (!region || !userPoolId || !clientId) {
       throw new Error(

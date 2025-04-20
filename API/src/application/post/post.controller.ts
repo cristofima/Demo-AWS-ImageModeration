@@ -88,11 +88,11 @@ export class PostController {
         ],
       }),
     )
-    file: Express.Multer.File,
+    image: Express.Multer.File,
     @Request() req: any,
   ) {
     const user: UserModel = req.user;
-    return await this.postService.create(file, user);
+    return await this.postService.create(image, user);
   }
 
   @Delete(':id')

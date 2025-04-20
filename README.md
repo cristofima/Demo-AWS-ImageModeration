@@ -28,8 +28,6 @@ API/
   ├── src/
   │   ├── application/
   │   │   └── post/
-  │   │       ├── dto/
-  │   │       │   └── create-post.dto.ts
   │   │       ├── mapper/
   │   │       │   └── post.mapper.ts
   │   │       ├── models/
