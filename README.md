@@ -21,6 +21,68 @@ This project analyzes the content of uploaded images to ensure compliance with m
 - **Libraries**: Axios
 - **Cloud Services**: AWS Cognito, AWS Amplify
 
+## User Authentication with AWS Cognito and Amplify
+
+This project uses **AWS Cognito** for user authentication and **AWS Amplify** to integrate authentication into the frontend.
+
+### AWS Cognito Setup
+
+1. **Create a Cognito User Pool**:
+   - Go to the [AWS Cognito Console](https://console.aws.amazon.com/cognito/).
+   - Create a new User Pool and configure it with the desired settings (e.g., email as the username, password policies, etc.).
+   - Note down the **User Pool ID** and **App Client ID**.
+
+2. **Configure App Client**:
+   - In the Cognito User Pool, create an App Client.
+   - Enable the necessary authentication flows (e.g., `USER_PASSWORD_AUTH`).
+
+3. **Set Up Domain**:
+   - Configure a domain name for the User Pool under the "App Integration" section.
+
+### AWS Amplify Setup
+
+1. **Install Amplify CLI**:
+   ```sh
+   npm install -g @aws-amplify/cli
+   ```
+
+2. **Initialize Amplify**:
+  - Navigate to the `UI` directory:
+     ```sh
+     cd UI
+     ```
+  - Run the following command:
+     ```sh
+     amplify init
+     ```
+  - Follow the prompts to configure the Amplify project.
+
+3. **Add Authentication**:
+   ```sh
+   amplify add auth
+   ```
+  - Select "Default configuration" or customize as needed.
+  - Provide the Cognito User Pool details when prompted.
+
+4. **Push Changes to AWS**:
+   ```sh
+   amplify push
+   ```
+
+5. **Update `aws-exports.js`**:
+   - After pushing, Amplify generates an `aws-exports.js` file in the `src` directory.
+   - Ensure this file is imported and used in `src/main.tsx` for Amplify configuration.
+
+### Screenshots
+
+**Login Page**
+
+![Login Page](screenshots/signin-page.PNG)
+
+**Sign Up Page**
+
+![Sign Up Page](screenshots/signup-page.PNG)
+
 ## Project Structure
 
 ```
@@ -252,7 +314,5 @@ If you wish to contribute, follow these steps:
 
 - [Nest.js](https://nestjs.com/)
 - [React](https://reactjs.dev/)
-- [AWS S3](https://aws.amazon.com/s3/)
-- [AWS Rekognition](https://aws.amazon.com/rekognition/)
 - [TypeORM](https://typeorm.io/)
 - [Vite](https://vitejs.dev/)
