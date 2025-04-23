@@ -56,6 +56,9 @@
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.click-overlay--safe {
   cursor: pointer;
 }
 

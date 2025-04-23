@@ -3,15 +3,20 @@ import { toast } from "react-toastify";
 import apiService from "../../services/api-service";
 import "./Upload.css";
 import { AxiosError } from "axios";
+import { Button } from "@heroui/react";
+import { Input } from "@heroui/input";
 
 const Upload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, startTransition] = useTransition();
 
-  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    setSelectedFile(file);
-  }, []);
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0] || null;
+      setSelectedFile(file);
+    },
+    []
+  );
 
   const handleUpload = useCallback(() => {
     if (!selectedFile) {
@@ -22,7 +27,7 @@ const Upload = () => {
     startTransition(async () => {
       const formData = new FormData();
       formData.append("image", selectedFile);
-      
+
       try {
         await apiService.uploadImage(formData);
         setSelectedFile(null);
@@ -40,21 +45,21 @@ const Upload = () => {
 
   return (
     <div className="upload-container">
-      <input
+      <Input
         id="file-input"
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        disabled={isUploading}
-        className="file-input"
+        isDisabled={isUploading}
       />
-      <button
-        onClick={handleUpload}
-        disabled={!selectedFile || isUploading}
-        className="button upload-button"
+      <Button
+        color="primary"
+        onPress={handleUpload}
+        isDisabled={!selectedFile || isUploading}
+        isLoading={isUploading}
       >
-        {isUploading ? "Uploading..." : "Upload"}
-      </button>
+        {isUploading ? "Uploading" : "Upload"}
+      </Button>
     </div>
   );
 };

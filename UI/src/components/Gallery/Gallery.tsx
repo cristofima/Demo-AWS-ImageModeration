@@ -3,7 +3,8 @@ import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
 import ImageModal from "./ImageModal";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
-import { ClipLoader } from "react-spinners";
+import { Spinner } from "@heroui/spinner";
+import "./Gallery.css";
 
 const Gallery = () => {
   const fetchImages = useCallback(async (page: number) => {
@@ -16,16 +17,21 @@ const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<Image>();
   const [loadedImages, setLoadedImages] = useState<number[]>([]);
 
-  const toggleBlur = useCallback((id: number) => {
-    setImages((prevImages) =>
-      prevImages.map((img) =>
-        img.id === id ? { ...img, imageIsBlurred: !img.imageIsBlurred } : img
-      )
-    );
-  }, [setImages]);
+  const toggleBlur = useCallback(
+    (id: number) => {
+      setImages((prevImages) =>
+        prevImages.map((img) =>
+          img.id === id ? { ...img, imageIsBlurred: !img.imageIsBlurred } : img
+        )
+      );
+    },
+    [setImages]
+  );
 
   const handleImageClick = useCallback((image: Image) => {
-    setSelectedImage(image);
+    if (!image.imageIsBlurred) {
+      setSelectedImage(image);
+    }
   }, []);
 
   const handleModalClose = useCallback(() => {
@@ -63,7 +69,9 @@ const Gallery = () => {
               </button>
             )}
             <div
-              className="click-overlay"
+              className={`click-overlay ${
+                !image.imageIsBlurred ? "click-overlay--safe" : ""
+              }`}
               onClick={() => handleImageClick(image)}
             ></div>
           </div>
@@ -72,7 +80,7 @@ const Gallery = () => {
       </div>
       {isLoading && (
         <div className="loading-container">
-          <ClipLoader color="#3498db" size={80} />
+          <Spinner size="lg" />
         </div>
       )}
       {selectedImage && (

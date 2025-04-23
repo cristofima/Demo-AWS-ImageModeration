@@ -1,9 +1,15 @@
-import React, { useState, useTransition, useCallback } from "react";
+import React, { useTransition, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
-import "./Gallery.css";
-import "./ImageModal.css";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/react";
 
 interface ImageModalProps {
   image: Image;
@@ -16,11 +22,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
   onClose,
   onDelete,
 }) => {
-  const [isBlurred, setIsBlurred] = useState(image.imageIsBlurred);
   const [isDeleting, startTransition] = useTransition();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const toggleBlur = useCallback(() => {
-    setIsBlurred((prev) => !prev);
+  useEffect(() => {
+    onOpen();
   }, []);
 
   const handleDelete = useCallback(() => {
@@ -37,34 +43,46 @@ const ImageModal: React.FC<ImageModalProps> = ({
   }, [image.id, onDelete, onClose]);
 
   return (
-    <>
-      <div className="modal-overlay"></div>
-      <div className="modal-content">
-        <div className={`modal-image-wrapper ${isBlurred ? "blurred" : ""}`}>
-          <img src={image.imagePath} alt="Full" />
-          {isBlurred && (
-            <button className="toggle-blur-button" onClick={toggleBlur}>
-              Show Image
-            </button>
-          )}
-        </div>
-        <p className="created-at">
-          Uploaded on: {new Date(image.createdAt).toLocaleString()}
-        </p>
-        <div className="modal-actions">
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="button delete-button"
-          >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </button>
-          <button className="button close-button" onClick={onClose}>
-            Close
-          </button>
-        </div>
-      </div>
-    </>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      onOpenChange={onOpenChange}
+      size="lg"
+    >
+      <ModalContent className="max-h-[90vh] flex flex-col">
+        {(onModalClose) => (
+          <>
+            <ModalBody className="flex-1 p-4 overflow-hidden flex flex-col items-center justify-center">
+              <div className="w-full h-full flex justify-center overflow-hidden">
+                <img
+                  src={image.imagePath}
+                  alt="Full"
+                  className="object-contain max-h-full max-w-full"
+                  style={{ maxHeight: "100%", maxWidth: "100%" }}
+                />
+              </div>
+              <p className="mt-2 text-sm text-gray-500 text-center">
+                Uploaded on: {new Date(image.createdAt).toLocaleString()}
+              </p>
+            </ModalBody>
+
+            <ModalFooter className="flex justify-end gap-2">
+              <Button onPress={onModalClose} isDisabled={isDeleting}>
+                Close
+              </Button>
+              <Button
+                color="danger"
+                onPress={handleDelete}
+                isDisabled={isDeleting}
+                isLoading={isDeleting}
+              >
+                {isDeleting ? "Deleting" : "Delete"}
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 };
 
