@@ -18,7 +18,7 @@ This project analyzes the content of uploaded images to ensure compliance with m
 - **Build Tool**: Vite
 - **Language**: TypeScript
 - **Styling**: CSS
-- **Libraries**: Axios
+- **Libraries**: Axios, Tailwind CSS
 - **Cloud Services**: AWS Cognito, AWS Amplify
 
 ## User Authentication with AWS Cognito and Amplify
@@ -131,12 +131,24 @@ API/
 UI/
   ├── src/
   │   ├── components/
+  │   │   │── ImageModal/
+  │   │   └── NavBar/
   │   ├── hooks/
-  │   ├── interceptors/
-  │   ├── models/
+  │   │   └── useInfiniteScroll.ts
+  │   ├── interfaces/
+  │   │   │   │── Pagination.ts
+  │   │   │   │── Post.ts
+  │   │   │   └── User.ts
+  │   ├── pages/
+  │   │   │── GalleryPage/
+  │   │   └── UploadPage/
   │   ├── services/
-  │   ├── App.tsx
+  │   │   │── api/
+  │   │   │   │── apiClient.ts
+  │   │   │   └── requestInterceptor.ts
+  │   │   └── postService.ts
   │   ├── App.css
+  │   ├── App.tsx
   │   └── main.tsx
   ├── public/
   ├── .env

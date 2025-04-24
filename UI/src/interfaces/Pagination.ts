@@ -1,7 +1,7 @@
-import { Image } from "./image.model";
+import { Post } from "./Post";
 
 export interface Pagination {
-  data: Image[];
+  data: Post[];
   metadata: {
     page: number;
     limit: number;

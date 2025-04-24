@@ -1,7 +1,7 @@
 import React, { useTransition, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Image } from "../../models/image.model";
-import apiService from "../../services/api-service";
+import { Post } from "../../interfaces";
+import { postService } from "../../services";
 import {
   Button,
   Modal,
@@ -12,7 +12,7 @@ import {
 } from "@heroui/react";
 
 interface ImageModalProps {
-  images: Image[];
+  posts: Post[];
   currentIndex: number;
   onClose: () => void;
   onDelete: () => void;
@@ -20,7 +20,7 @@ interface ImageModalProps {
 }
 
 const ImageModal: React.FC<ImageModalProps> = ({
-  images,
+  posts,
   currentIndex,
   onClose,
   onDelete,
@@ -28,7 +28,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
 }) => {
   const [isDeleting, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const image = images[currentIndex];
+  const post = posts[currentIndex];
 
   useEffect(() => {
     onOpen();
@@ -38,27 +38,27 @@ const ImageModal: React.FC<ImageModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" && currentIndex > 0) {
         onNavigate(currentIndex - 1);
-      } else if (e.key === "ArrowRight" && currentIndex < images.length - 1) {
+      } else if (e.key === "ArrowRight" && currentIndex < posts.length - 1) {
         onNavigate(currentIndex + 1);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, images.length, onNavigate]);
+  }, [currentIndex, posts.length, onNavigate]);
 
   const handleDelete = useCallback(() => {
     startTransition(async () => {
       try {
-        await apiService.deleteImage(image.id);
-        toast.success("Image deleted successfully");
+        await postService.deletePost(post.id);
+        toast.success("Post deleted successfully");
         onDelete();
         onClose();
       } catch {
-        toast.error("Failed to delete image");
+        toast.error("Failed to delete post");
       }
     });
-  }, [image.id, onDelete, onClose]);
+  }, [post.id, onDelete, onClose]);
 
   return (
     <Modal
@@ -89,7 +89,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                   </Button>
                 )}
 
-                {currentIndex < images.length - 1 && (
+                {currentIndex < posts.length - 1 && (
                   <Button
                     onPress={() => onNavigate(currentIndex + 1)}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10"
@@ -100,14 +100,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
                   </Button>
                 )}
                 <img
-                  src={image.imagePath}
+                  src={post.imagePath}
                   alt="Full"
                   className="object-contain max-h-full max-w-full"
                   style={{ maxHeight: "100%", maxWidth: "100%" }}
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500 text-center">
-                Uploaded on: {new Date(image.createdAt).toLocaleString()}
+                Uploaded on: {new Date(post.createdAt).toLocaleString()}
               </p>
             </ModalBody>
 

@@ -15,11 +15,11 @@ import {
   NavbarMenuItem,
   Link,
 } from "@heroui/react";
-import { UserModel } from "../../models/user.model";
+import { User } from "../../interfaces";
 
 const NavBar = () => {
   const [userInitials, setUserInitials] = useState<string>("");
-  const [user, setUser] = useState<UserModel>();
+  const [user, setUser] = useState<User>();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSignOut = async () => {

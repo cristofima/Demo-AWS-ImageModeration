@@ -7,9 +7,8 @@ import {
   useHref,
   NavigateOptions,
 } from "react-router-dom";
-import Upload from "./components/Upload/Upload";
-import Gallery from "./components/Gallery/Gallery";
-import NavBar from "./components/Navbar/Navbar";
+import { GalleryPage, UploadPage } from "./pages";
+import { NavBar } from "./components";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
@@ -30,8 +29,8 @@ const App: React.FC = () => {
       <ToastContainer />
       <NavBar />
       <Routes>
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/upload" element={<Upload />} />
+        <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/upload" element={<UploadPage />} />
         <Route path="*" element={<Navigate to="/gallery" />} />
       </Routes>
     </HeroUIProvider>

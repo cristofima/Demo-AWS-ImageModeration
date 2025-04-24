@@ -1,16 +1,16 @@
-.gallery-container {
+.gallery {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.gallery-grid {
+.gallery__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 10px;
 }
 
-.gallery-item {
+.gallery__item {
   position: relative;
   overflow: hidden;
   border-radius: 10px;
@@ -19,18 +19,18 @@
   align-items: center;
 }
 
-.gallery-item img {
+.gallery__item--blurred .gallery__image {
+  filter: blur(20px);
+}
+
+.gallery__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: filter 0.3s ease;
 }
 
-.gallery-item.blurred img {
-  filter: blur(20px);
-}
-
-.toggle-blur-button {
+.gallery__toggle-blur-button {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -46,11 +46,11 @@
   transition: background-color 0.3s ease;
 }
 
-.toggle-blur-button:hover {
+.gallery__toggle-blur-button:hover {
   background-color: rgba(0, 0, 0, 0.9);
 }
 
-.click-overlay {
+.gallery__click-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -58,16 +58,16 @@
   bottom: 0;
 }
 
-.click-overlay--safe {
+.gallery__click-overlay--safe {
   cursor: pointer;
 }
 
-.h-10 {
+.gallery__observer {
   height: 10px;
   width: 100%;
 }
 
-.loading-container {
+.gallery__loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
