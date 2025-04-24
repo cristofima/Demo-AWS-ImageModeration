@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from "react";
-import { Image } from "../../models/image.model";
 import apiService from "../../services/api-service";
 import ImageModal from "./ImageModal";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
@@ -14,7 +13,7 @@ const Gallery = () => {
 
   const { images, setImages, isLoading, observerRef } =
     useInfiniteScroll(fetchImages);
-  const [selectedImage, setSelectedImage] = useState<Image>();
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [loadedImages, setLoadedImages] = useState<number[]>([]);
 
   const toggleBlur = useCallback(
@@ -28,29 +27,43 @@ const Gallery = () => {
     [setImages]
   );
 
-  const handleImageClick = useCallback((image: Image) => {
-    if (!image.imageIsBlurred) {
-      setSelectedImage(image);
-    }
-  }, []);
+  const handleImageClick = useCallback(
+    (index: number) => {
+      if (!images[index].imageIsBlurred) {
+        setSelectedIndex(index);
+      }
+    },
+    [images]
+  );
 
   const handleModalClose = useCallback(() => {
-    setSelectedImage(undefined);
+    setSelectedIndex(null);
   }, []);
 
   const handleImageDelete = useCallback(() => {
-    const updatedImages = images.filter((img) => img.id !== selectedImage?.id);
+    if (selectedIndex === null) return;
+    const updatedImages = images.filter((_, index) => index !== selectedIndex);
     setImages(updatedImages);
-  }, [images, selectedImage, setImages]);
+    setSelectedIndex(null);
+  }, [images, selectedIndex, setImages]);
 
   const handleImageLoad = useCallback((id: number) => {
     setLoadedImages((prevLoadedImages) => [...prevLoadedImages, id]);
   }, []);
 
+  const handleNavigate = useCallback(
+    (newIndex: number) => {
+      if (newIndex >= 0 && newIndex < images.length) {
+        setSelectedIndex(newIndex);
+      }
+    },
+    [images.length]
+  );
+
   return (
     <div className="gallery-container">
       <div className="gallery-grid">
-        {images.map((image) => (
+        {images.map((image, index) => (
           <div
             key={image.id}
             className={`gallery-item ${image.imageIsBlurred ? "blurred" : ""}`}
@@ -72,7 +85,7 @@ const Gallery = () => {
               className={`click-overlay ${
                 !image.imageIsBlurred ? "click-overlay--safe" : ""
               }`}
-              onClick={() => handleImageClick(image)}
+              onClick={() => handleImageClick(index)}
             ></div>
           </div>
         ))}
@@ -83,11 +96,13 @@ const Gallery = () => {
           <Spinner size="lg" />
         </div>
       )}
-      {selectedImage && (
+      {selectedIndex !== null && (
         <ImageModal
-          image={selectedImage}
+          images={images}
+          currentIndex={selectedIndex}
           onClose={handleModalClose}
           onDelete={handleImageDelete}
+          onNavigate={handleNavigate}
         />
       )}
     </div>

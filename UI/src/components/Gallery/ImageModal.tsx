@@ -12,22 +12,40 @@ import {
 } from "@heroui/react";
 
 interface ImageModalProps {
-  image: Image;
+  images: Image[];
+  currentIndex: number;
   onClose: () => void;
   onDelete: () => void;
+  onNavigate: (index: number) => void;
 }
 
 const ImageModal: React.FC<ImageModalProps> = ({
-  image,
+  images,
+  currentIndex,
   onClose,
   onDelete,
+  onNavigate,
 }) => {
   const [isDeleting, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const image = images[currentIndex];
 
   useEffect(() => {
     onOpen();
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" && currentIndex > 0) {
+        onNavigate(currentIndex - 1);
+      } else if (e.key === "ArrowRight" && currentIndex < images.length - 1) {
+        onNavigate(currentIndex + 1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, images.length, onNavigate]);
 
   const handleDelete = useCallback(() => {
     startTransition(async () => {
@@ -47,13 +65,40 @@ const ImageModal: React.FC<ImageModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       onOpenChange={onOpenChange}
+      hideCloseButton={true}
       size="lg"
+      scrollBehavior="outside"
+      className="!overflow-hidden"
     >
-      <ModalContent className="max-h-[90vh] flex flex-col">
+      <ModalContent>
         {(onModalClose) => (
           <>
-            <ModalBody className="flex-1 p-4 overflow-hidden flex flex-col items-center justify-center">
-              <div className="w-full h-full flex justify-center overflow-hidden">
+            <ModalBody className="relative overflow-hidden px-4 pt-2 pb-0">
+              <div
+                className="relative w-full flex justify-center"
+                style={{ maxHeight: "calc(100vh - 12rem)" }}
+              >
+                {currentIndex > 0 && (
+                  <Button
+                    onPress={() => onNavigate(currentIndex - 1)}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10"
+                    variant="flat"
+                    size="sm"
+                  >
+                    ◀
+                  </Button>
+                )}
+
+                {currentIndex < images.length - 1 && (
+                  <Button
+                    onPress={() => onNavigate(currentIndex + 1)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10"
+                    variant="flat"
+                    size="sm"
+                  >
+                    ▶
+                  </Button>
+                )}
                 <img
                   src={image.imagePath}
                   alt="Full"
