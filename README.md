@@ -136,9 +136,9 @@ UI/
   │   ├── hooks/
   │   │   └── useInfiniteScroll.ts
   │   ├── interfaces/
-  │   │   │   │── Pagination.ts
-  │   │   │   │── Post.ts
-  │   │   │   └── User.ts
+  │   │   │── Pagination.ts
+  │   │   │── Post.ts
+  │   │   └── User.ts
   │   ├── pages/
   │   │   │── GalleryPage/
   │   │   └── UploadPage/
