@@ -132,7 +132,8 @@ UI/
   ├── src/
   │   ├── components/
   │   │   │── ImageModal/
-  │   │   └── NavBar/
+  │   │   │── NavBar/
+  │   │   └── UserAccountDropdown/
   │   ├── hooks/
   │   │   └── useInfiniteScroll.ts
   │   ├── interfaces/
@@ -147,6 +148,8 @@ UI/
   │   │   │   │── apiClient.ts
   │   │   │   └── requestInterceptor.ts
   │   │   └── postService.ts
+  │   ├── utils/
+  │   │   └── helpers.ts
   │   ├── App.css
   │   ├── App.tsx
   │   └── main.tsx
