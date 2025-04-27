@@ -12,7 +12,8 @@ import {
 } from "@heroui/react";
 
 interface ImageModalProps {
-  posts: Post[];
+  post: Post;
+  totalPosts: number;
   currentIndex: number;
   onClose: () => void;
   onDelete: () => void;
@@ -20,7 +21,8 @@ interface ImageModalProps {
 }
 
 const ImageModal: React.FC<ImageModalProps> = ({
-  posts,
+  post,
+  totalPosts,
   currentIndex,
   onClose,
   onDelete,
@@ -28,7 +30,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
 }) => {
   const [isDeleting, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const post = posts[currentIndex];
 
   useEffect(() => {
     onOpen();
@@ -38,14 +39,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" && currentIndex > 0) {
         onNavigate(currentIndex - 1);
-      } else if (e.key === "ArrowRight" && currentIndex < posts.length - 1) {
+      } else if (e.key === "ArrowRight" && currentIndex < totalPosts - 1) {
         onNavigate(currentIndex + 1);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, posts.length, onNavigate]);
+  }, [currentIndex, totalPosts, onNavigate]);
 
   const handleDelete = useCallback(() => {
     startTransition(async () => {
@@ -89,7 +90,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                   </Button>
                 )}
 
-                {currentIndex < posts.length - 1 && (
+                {currentIndex < totalPosts - 1 && (
                   <Button
                     onPress={() => onNavigate(currentIndex + 1)}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10"

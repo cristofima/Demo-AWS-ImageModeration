@@ -103,7 +103,8 @@ const GalleryPage: React.FC = () => {
       )}
       {selectedIndex !== null && (
         <ImageModal
-          posts={posts}
+          post={posts[selectedIndex]}
+          totalPosts={posts.length}
           currentIndex={selectedIndex}
           onClose={handleModalClose}
           onDelete={handlePostDelete}
