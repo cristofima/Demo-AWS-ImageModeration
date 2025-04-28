@@ -6,31 +6,24 @@ import {
   DropdownSection,
   DropdownTrigger,
   User as HeroUser,
+  Tooltip,
 } from "@heroui/react";
-import React, { useEffect, useState } from "react";
-import { signOut, fetchUserAttributes } from "@aws-amplify/auth";
-import { User } from "../../interfaces";
+import React from "react";
+import { signOut } from "@aws-amplify/auth";
+import { useUserData } from "../../hooks";
+import { truncateString } from "../../utils/helpers";
 
 const UserAccountDropdown = () => {
-  const [userInitials, setUserInitials] = useState<string>("");
-  const [user, setUser] = useState<User>();
+  const { user } = useUserData();
 
   const handleSignOut = async () => {
     await signOut();
   };
 
-  const fetchUserDetails = async () => {
-    const { email, name, family_name } = await fetchUserAttributes();
-    if (name && family_name) {
-      const initials = `${name[0]}${family_name[0]}`.toUpperCase();
-      setUserInitials(initials);
-      setUser({ email, name, familyName: family_name });
-    }
-  };
-
-  useEffect(() => {
-    fetchUserDetails();
-  }, []);
+  const userInitials =
+    user?.name && user?.familyName
+      ? `${user.name[0]}${user.familyName[0]}`.toUpperCase()
+      : "";
 
   return (
     <Dropdown placement="bottom-end">
@@ -40,7 +33,7 @@ const UserAccountDropdown = () => {
           showFallback
           as="button"
           className="transition-transform"
-          color="secondary"
+          color="primary"
           name={userInitials}
           size="sm"
         />
@@ -48,16 +41,23 @@ const UserAccountDropdown = () => {
       <DropdownMenu aria-label="Profile Actions" variant="flat">
         <DropdownSection showDivider aria-label="Profile & Actions">
           <DropdownItem key="avatar" className="h-14 gap-2">
-            <HeroUser
-              avatarProps={{
-                name: userInitials,
-                size: "sm",
-              }}
-              description={user?.email}
-              name={`${user?.name} ${user?.familyName}`}
-            />
+            <Tooltip
+              color="foreground"
+              content={`${user?.name} ${user?.familyName}`}
+            >
+              <HeroUser
+                avatarProps={{
+                  name: userInitials,
+                  size: "sm",
+                }}
+                description={user?.email}
+                name={truncateString(`${user?.name} ${user?.familyName}`, 22)}
+              />
+            </Tooltip>
           </DropdownItem>
-          <DropdownItem key="profile">Profile</DropdownItem>
+          <DropdownItem key="profile" href="/profile">
+            Profile
+          </DropdownItem>
           <DropdownItem key="settings">Settings</DropdownItem>
         </DropdownSection>
 

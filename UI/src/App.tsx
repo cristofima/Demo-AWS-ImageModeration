@@ -6,7 +6,7 @@ import {
   useNavigate,
   useHref,
 } from "react-router-dom";
-import { GalleryPage, UploadPage } from "./pages";
+import { GalleryPage, UploadPage, ProfilePage } from "./pages";
 import MainLayout from "./layouts/MainLayout";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import "./App.css";
@@ -21,6 +21,8 @@ const App: React.FC = () => {
         <Route path="/" element={<MainLayout />}>
           <Route path="gallery" element={<GalleryPage />} />
           <Route path="upload" element={<UploadPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="/" element={<Navigate to="/gallery" />} />
           <Route path="*" element={<Navigate to="/gallery" />} />
         </Route>
       </Routes>
