@@ -21,32 +21,29 @@ const NavBar = () => {
 
   return (
     <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
-      <NavbarContent className="sm:hidden" justify="start">
+      <NavbarContent justify="start" className="gap-4">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          className="sm:hidden"
         />
-      </NavbarContent>
-
-      <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
           <p className="font-bold text-inherit">Demo</p>
         </NavbarBrand>
+        <div className="hidden sm:flex gap-4">
+          {["gallery", "upload"].map((item) => (
+            <NavbarItem key={item} isActive={isActive(`/${item}`)}>
+              <Link
+                color={isActive(`/${item}`) ? "primary" : "foreground"}
+                href={`/${item}`}
+              >
+                {toTitleCase(item)}
+              </Link>
+            </NavbarItem>
+          ))}
+        </div>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        {["gallery", "upload"].map((item) => (
-          <NavbarItem key={item} isActive={isActive(`/${item}`)}>
-            <Link
-              color={isActive(`/${item}`) ? "primary" : "foreground"}
-              href={`/${item}`}
-            >
-              {toTitleCase(item)}
-            </Link>
-          </NavbarItem>
-        ))}
-      </NavbarContent>
-
-      <NavbarContent as="div" justify="end">
+      <NavbarContent justify="end">
         <UserAccountDropdown />
       </NavbarContent>
 

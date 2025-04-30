@@ -1,6 +1,7 @@
-import { NavBar } from "../components";
+import { NavBar } from "../../components";
 import { ToastContainer } from "react-toastify";
 import { Outlet } from "react-router-dom";
+import "./MainLayout.css";
 
 const MainLayout = () => {
   return (
@@ -8,7 +9,7 @@ const MainLayout = () => {
       <ToastContainer />
       <NavBar />
 
-      <main>
+      <main className="layout-container">
         <Outlet />
       </main>
     </>

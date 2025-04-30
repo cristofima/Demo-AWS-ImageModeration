@@ -145,7 +145,7 @@ UI/
   │   │   │── Post.ts
   │   │   └── User.ts
   │   ├── layouts/
-  │   │   └── MainLayout.tsx
+  │   │   └── MainLayout/
   │   ├── pages/
   │   │   │── GalleryPage/
   │   │   │── ProfilePage/
