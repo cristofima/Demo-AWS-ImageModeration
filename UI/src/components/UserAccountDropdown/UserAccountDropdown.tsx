@@ -12,12 +12,15 @@ import React from "react";
 import { signOut } from "@aws-amplify/auth";
 import { useUserData } from "../../hooks";
 import { truncateString } from "../../utils/helpers";
+import { useNavigate } from "react-router-dom";
 
 const UserAccountDropdown = () => {
   const { user } = useUserData();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
+    navigate("/", { replace: true });
   };
 
   const userInitials =
@@ -50,7 +53,7 @@ const UserAccountDropdown = () => {
                   name: userInitials,
                   size: "sm",
                 }}
-                description={user?.email}
+                description={truncateString(user?.email ?? "", 25)}
                 name={truncateString(`${user?.name} ${user?.familyName}`, 22)}
               />
             </Tooltip>
