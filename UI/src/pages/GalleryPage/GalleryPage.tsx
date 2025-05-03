@@ -74,7 +74,6 @@ const GalleryPage: React.FC = () => {
           >
             <img
               src={post.imagePath}
-              alt="Uploaded"
               onLoad={() => handlePostLoad(post.id)}
               className="gallery__image"
             />
@@ -98,7 +97,7 @@ const GalleryPage: React.FC = () => {
       </div>
       {isLoading && (
         <div className="gallery__loading-container">
-          <Spinner size="lg" />
+          <Spinner data-testid="loading-spinner" size="lg" />
         </div>
       )}
       {selectedIndex !== null && (

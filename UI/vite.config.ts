@@ -17,5 +17,23 @@ export default defineConfig(({ mode }) => {
       "process.env": processEnv,
     },
     plugins: [react(), analyzer()],
+    test: {
+      globals: true,
+      environment: "jsdom",
+      setupFiles: ["./src/setupTests.ts"],
+      coverage: {
+        reporter: ["text", "html", "json"],
+        include: ["src/**/*.{ts,tsx}"],
+        reportOnFailure: true,
+        exclude: [
+          "src/**/*.test.tsx",
+          "src/setupTests.ts",
+          "src/main.tsx",
+          "src/App.tsx",
+          "src/*.d.ts",
+          "src/**/index.ts",
+        ],
+      },
+    },
   };
 });

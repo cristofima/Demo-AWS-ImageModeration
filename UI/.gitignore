@@ -28,3 +28,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+coverage
+
+# Amplify
+amplify/
+aws-exports.js
+amplifyconfiguration.json

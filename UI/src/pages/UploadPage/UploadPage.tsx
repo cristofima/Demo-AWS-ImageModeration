@@ -24,16 +24,11 @@ const UploadPage: React.FC = () => {
   }, []);
 
   const handleUpload = useCallback(async () => {
-    if (!selectedFile) {
-      toast.error("No file selected");
-      return;
-    }
-
     setIsUploading(true);
 
     try {
       const formData = new FormData();
-      formData.append("image", selectedFile);
+      formData.append("image", selectedFile!);
 
       await postService.uploadPost(formData);
       resetFileInput();
@@ -53,6 +48,7 @@ const UploadPage: React.FC = () => {
     <div className="upload">
       <Input
         id="file-input"
+        data-testid="file-input"
         type="file"
         accept="image/*"
         onChange={handleFileChange}
@@ -61,6 +57,7 @@ const UploadPage: React.FC = () => {
       />
       <Button
         color="primary"
+        data-testid="upload-button"
         onPress={handleUpload}
         isDisabled={!selectedFile || isUploading}
         isLoading={isUploading}

@@ -102,7 +102,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 )}
                 <img
                   src={post.imagePath}
-                  alt="Full"
                   className="object-contain max-h-full max-w-full"
                   style={{ maxHeight: "100%", maxWidth: "100%" }}
                 />
@@ -113,11 +112,12 @@ const ImageModal: React.FC<ImageModalProps> = ({
             </ModalBody>
 
             <ModalFooter className="flex justify-end gap-2">
-              <Button onPress={onModalClose} isDisabled={isDeleting}>
+              <Button data-testid="close-button" onPress={onModalClose} isDisabled={isDeleting}>
                 Close
               </Button>
               <Button
                 color="danger"
+                data-testid="delete-button"
                 onPress={handleDelete}
                 isDisabled={isDeleting}
                 isLoading={isDeleting}

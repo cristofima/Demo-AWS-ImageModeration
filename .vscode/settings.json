@@ -13,5 +13,10 @@
     {
       "file": "./github/git-commit-messages-instructions.md"
     }
+  ],
+  "github.copilot.chat.testGeneration.instructions": [
+    {
+      "file": "./github/react-test-generation-instructions.md"
+    },
   ]
 }

@@ -90,6 +90,7 @@ const ProfilePage: React.FC = () => {
                   <Input
                     {...field}
                     id={key}
+                    data-testid={key}
                     isRequired
                     isDisabled={
                       ["email", "nickname"].includes(key) || isSubmitting
@@ -117,6 +118,7 @@ const ProfilePage: React.FC = () => {
           </div>
         ))}
         <Button
+          data-testid="update-button"
           type="submit"
           color="primary"
           isDisabled={isSubmitting || !user || !isValid}

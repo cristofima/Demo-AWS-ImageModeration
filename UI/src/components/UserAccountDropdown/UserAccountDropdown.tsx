@@ -65,7 +65,7 @@ const UserAccountDropdown = () => {
         </DropdownSection>
 
         <DropdownSection aria-label="Log Out">
-          <DropdownItem key="logout" color="danger" onPress={handleSignOut}>
+          <DropdownItem data-testid="logout-button" key="logout" color="danger" onPress={handleSignOut}>
             Log Out
           </DropdownItem>
         </DropdownSection>
