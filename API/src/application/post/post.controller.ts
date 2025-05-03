@@ -27,6 +27,7 @@ import {
 import { PostModel } from './models/post.model';
 import { JwtAuthGuard } from 'src/infrastructure/auth/jwt-auth.guard';
 import { UserModel } from 'src/infrastructure/auth/user.model';
+import { MAX_FILE_SIZE } from 'src/domain/constants/file.constant';
 
 @Controller('api/posts')
 @UseGuards(JwtAuthGuard)
@@ -83,7 +84,7 @@ export class PostController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE }),
           new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
         ],
       }),

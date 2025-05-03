@@ -99,7 +99,8 @@ API/
   │   │       └── post.service.ts
   │   ├── domain/
   │   │   ├── constants/
-  │   │   │   └── category-thresholds.constant.ts
+  │   │   │   │── category-thresholds.constant.ts
+  │   │   │   └── file.constant.ts
   │   │   ├── entities/
   │   │   │   └── post.entity.ts
   │   │   └── types/
