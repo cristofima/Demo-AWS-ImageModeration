@@ -10,6 +10,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
+import { FaChevronLeft, FaChevronRight, FaTrashCan } from "react-icons/fa6";
 
 interface ImageModalProps {
   post: Post;
@@ -81,23 +82,25 @@ const ImageModal: React.FC<ImageModalProps> = ({
               >
                 {currentIndex > 0 && (
                   <Button
+                    isIconOnly
                     onPress={() => onNavigate(currentIndex - 1)}
                     className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10"
-                    variant="flat"
-                    size="sm"
+                    variant="light"
+                    size="lg"
                   >
-                    ◀
+                    <FaChevronLeft />
                   </Button>
                 )}
 
                 {currentIndex < totalPosts - 1 && (
                   <Button
+                    isIconOnly
                     onPress={() => onNavigate(currentIndex + 1)}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10"
-                    variant="flat"
-                    size="sm"
+                    variant="light"
+                    size="lg"
                   >
-                    ▶
+                    <FaChevronRight />
                   </Button>
                 )}
                 <img
@@ -112,7 +115,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
             </ModalBody>
 
             <ModalFooter className="flex justify-end gap-2">
-              <Button data-testid="close-button" onPress={onModalClose} isDisabled={isDeleting}>
+              <Button
+                data-testid="close-button"
+                onPress={onModalClose}
+                isDisabled={isDeleting}
+              >
                 Close
               </Button>
               <Button
@@ -121,6 +128,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 onPress={handleDelete}
                 isDisabled={isDeleting}
                 isLoading={isDeleting}
+                startContent={!isDeleting && <FaTrashCan />}
               >
                 {isDeleting ? "Deleting" : "Delete"}
               </Button>

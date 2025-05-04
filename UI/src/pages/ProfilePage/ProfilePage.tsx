@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { updateUserAttributes } from "@aws-amplify/auth";
 import { useUserData } from "../../hooks";
 import "./ProfilePage.css";
+import { FaFloppyDisk } from "react-icons/fa6";
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser } = useUserData();
@@ -124,6 +125,7 @@ const ProfilePage: React.FC = () => {
           isDisabled={isSubmitting || !user || !isValid}
           isLoading={isSubmitting}
           className="profile__button"
+          startContent={!isSubmitting && <FaFloppyDisk />}
         >
           {isSubmitting ? "Updating..." : "Update"}
         </Button>

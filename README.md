@@ -18,7 +18,7 @@ This project analyzes the content of uploaded images to ensure compliance with m
 - **Build Tool**: Vite
 - **Language**: TypeScript
 - **Styling**: CSS
-- **Libraries**: Axios, React Hook Form, React Toastify, Tailwind CSS, Zustand
+- **Libraries**: Axios, React Hook Form, React Toastify, HeroUI React, Tailwind CSS, Vitest, Zustand
 - **Cloud Services**: AWS Cognito, AWS Amplify
 
 ## User Authentication with AWS Cognito and Amplify
@@ -134,6 +134,7 @@ UI/
   │   ├── components/
   │   │   │── ImageModal/
   │   │   │── NavBar/
+  │   │   │── ProtectedRoute/
   │   │   └── UserAccountDropdown/
   │   ├── config/
   │   │   └── constants.ts
@@ -148,6 +149,7 @@ UI/
   │   ├── layouts/
   │   │   └── MainLayout/
   │   ├── pages/
+  │   │   │── AuthPage/
   │   │   │── GalleryPage/
   │   │   │── ProfilePage/
   │   │   └── UploadPage/

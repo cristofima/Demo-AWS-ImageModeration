@@ -5,6 +5,8 @@ import "./UploadPage.css";
 import { AxiosError } from "axios";
 import { Button } from "@heroui/react";
 import { Input } from "@heroui/input";
+import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from "../../config/constants";
+import { FaFloppyDisk } from "react-icons/fa6";
 
 const UploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -13,6 +15,14 @@ const UploadPage: React.FC = () => {
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0] || null;
+      if (file && file.size > MAX_FILE_SIZE) {
+        toast.error("File size exceeds 5MB");
+        return;
+      }
+      if (file && !ALLOWED_FILE_TYPES.includes(file.type)) {
+        toast.error("Invalid file type. Only JPEG and PNG are allowed.");
+        return;
+      }
       setSelectedFile(file);
     },
     []
@@ -62,6 +72,7 @@ const UploadPage: React.FC = () => {
         isDisabled={!selectedFile || isUploading}
         isLoading={isUploading}
         className="upload__button"
+        startContent={!isUploading && <FaFloppyDisk />}
       >
         {isUploading ? "Uploading" : "Upload"}
       </Button>
