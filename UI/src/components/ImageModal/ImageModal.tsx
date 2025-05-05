@@ -83,6 +83,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 {currentIndex > 0 && (
                   <Button
                     isIconOnly
+                    data-testid="previous-button"
                     onPress={() => onNavigate(currentIndex - 1)}
                     className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10"
                     variant="light"
@@ -95,6 +96,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 {currentIndex < totalPosts - 1 && (
                   <Button
                     isIconOnly
+                    data-testid="next-button"
                     onPress={() => onNavigate(currentIndex + 1)}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10"
                     variant="light"

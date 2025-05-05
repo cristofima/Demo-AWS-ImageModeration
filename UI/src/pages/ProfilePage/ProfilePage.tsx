@@ -1,6 +1,13 @@
 import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+} from "@heroui/react";
 import { toast } from "react-toastify";
 import { updateUserAttributes } from "@aws-amplify/auth";
 import { useUserData } from "../../hooks";
@@ -56,68 +63,74 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="profile">
-      <h1 className="profile__title">Profile</h1>
-      <form className="profile__form" onSubmit={handleSubmit(onSubmit)}>
-        {Object.entries(attributeKeys).map(([key, label]) => (
-          <div key={key} className="profile__field">
-            <label htmlFor={key} className="profile__label">
-              {label}
-            </label>
-            <Controller
-              name={key as "email" | "name" | "nickname" | "familyName"}
-              control={control}
-              rules={
-                key === "name" || key === "familyName"
-                  ? {
-                      required: `${label} is required`,
-                      pattern: {
-                        value: /^[a-zA-Z\s]+$/,
-                        message: `${label} must contain only letters`,
-                      },
-                      minLength: {
-                        value: 3,
-                        message: `${label} must be at least 3 characters`,
-                      },
-                      maxLength: {
-                        value: 50,
-                        message: `${label} must be less than 50 characters`,
-                      },
-                    }
-                  : {}
-              }
-              render={({ field }) => (
-                <>
-                  <Input
-                    {...field}
-                    id={key}
-                    data-testid={key}
-                    isRequired
-                    isDisabled={
-                      ["email", "nickname"].includes(key) || isSubmitting
-                    }
-                    className="profile__input"
-                    maxLength={50}
-                    minLength={3}
-                    errorMessage={({ validationDetails }) => {
-                      if (validationDetails.tooShort) {
-                        return "Please enter at least 3 characters";
+    <Card className="w-full max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg p-2">
+      <CardHeader>
+        <h1 className="profile__title">Profile</h1>
+      </CardHeader>
+      <CardBody>
+        <form className="profile__form" onSubmit={handleSubmit(onSubmit)}>
+          {Object.entries(attributeKeys).map(([key, label]) => (
+            <div key={key} className="profile__field">
+              <label htmlFor={key} className="profile__label">
+                {label}
+              </label>
+              <Controller
+                name={key as "email" | "name" | "nickname" | "familyName"}
+                control={control}
+                rules={
+                  key === "name" || key === "familyName"
+                    ? {
+                        required: `${label} is required`,
+                        pattern: {
+                          value: /^[a-zA-Z\s]+$/,
+                          message: `${label} must contain only letters`,
+                        },
+                        minLength: {
+                          value: 3,
+                          message: `${label} must be at least 3 characters`,
+                        },
+                        maxLength: {
+                          value: 50,
+                          message: `${label} must be less than 50 characters`,
+                        },
                       }
+                    : {}
+                }
+                render={({ field }) => (
+                  <>
+                    <Input
+                      {...field}
+                      id={key}
+                      data-testid={key}
+                      isRequired
+                      isDisabled={
+                        ["email", "nickname"].includes(key) || isSubmitting
+                      }
+                      className="profile__input"
+                      maxLength={50}
+                      minLength={3}
+                      errorMessage={({ validationDetails }) => {
+                        if (validationDetails.tooShort) {
+                          return "Please enter at least 3 characters";
+                        }
 
-                      if (validationDetails.tooLong) {
-                        return "Please enter less than 51 characters";
-                      }
+                        if (validationDetails.tooLong) {
+                          return "Please enter less than 51 characters";
+                        }
 
-                      if (validationDetails.valueMissing) {
-                        return "This field is required";
-                      }
-                    }}
-                  />
-                </>
-              )}
-            />
-          </div>
-        ))}
+                        if (validationDetails.valueMissing) {
+                          return "This field is required";
+                        }
+                      }}
+                    />
+                  </>
+                )}
+              />
+            </div>
+          ))}
+        </form>
+      </CardBody>
+      <CardFooter>
         <Button
           data-testid="update-button"
           type="submit"
@@ -129,8 +142,8 @@ const ProfilePage: React.FC = () => {
         >
           {isSubmitting ? "Updating..." : "Update"}
         </Button>
-      </form>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
 

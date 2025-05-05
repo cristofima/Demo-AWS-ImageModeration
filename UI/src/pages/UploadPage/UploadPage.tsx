@@ -1,10 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { postService } from "../../services";
-import "./UploadPage.css";
 import { AxiosError } from "axios";
-import { Button } from "@heroui/react";
-import { Input } from "@heroui/input";
+import { Button, Card, CardBody, CardFooter, Input } from "@heroui/react";
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from "../../config/constants";
 import { FaFloppyDisk } from "react-icons/fa6";
 
@@ -55,28 +53,31 @@ const UploadPage: React.FC = () => {
   }, [selectedFile, resetFileInput]);
 
   return (
-    <div className="upload">
-      <Input
-        id="file-input"
-        data-testid="file-input"
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        isDisabled={isUploading}
-        className="upload__input"
-      />
-      <Button
-        color="primary"
-        data-testid="upload-button"
-        onPress={handleUpload}
-        isDisabled={!selectedFile || isUploading}
-        isLoading={isUploading}
-        className="upload__button"
-        startContent={!isUploading && <FaFloppyDisk />}
-      >
-        {isUploading ? "Uploading" : "Upload"}
-      </Button>
-    </div>
+    <Card className="max-w-[400px] mx-auto mt-10 shadow-lg bg-white rounded-lg border border-gray-200">
+      <CardBody className="flex flex-col items-center justify-center p-4">
+        <Input
+          id="file-input"
+          data-testid="file-input"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          isDisabled={isUploading}
+        />
+      </CardBody>
+      <CardFooter>
+        <Button
+          color="primary"
+          data-testid="upload-button"
+          onPress={handleUpload}
+          isDisabled={!selectedFile || isUploading}
+          isLoading={isUploading}
+          className="w-full"
+          startContent={!isUploading && <FaFloppyDisk />}
+        >
+          {isUploading ? "Uploading" : "Upload"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

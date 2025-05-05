@@ -79,7 +79,7 @@ describe("ImageModal", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("▶"));
+    fireEvent.click(screen.getByTestId("next-button"));
     await waitFor(() => expect(mockOnNavigate).toHaveBeenCalledWith(1));
   });
 
@@ -95,7 +95,7 @@ describe("ImageModal", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("◀"));
+    fireEvent.click(screen.getByTestId("previous-button"));
     await waitFor(() => expect(mockOnNavigate).toHaveBeenCalledWith(0));
   });
 });
