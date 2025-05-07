@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
 import { postService } from "../../services";
 import { useInfiniteScroll } from "../../hooks";
-import { Spinner } from "@heroui/spinner";
-import "./GalleryPage.css";
 import { ImageModal } from "../../components";
+import { Button, Card, CardBody, Image, Spinner } from "@heroui/react";
+import "./GalleryPage.css";
 
 const GalleryPage: React.FC = () => {
   const fetchPosts = useCallback(async (page: number) => {
@@ -63,43 +63,44 @@ const GalleryPage: React.FC = () => {
   );
 
   return (
-    <div className="gallery">
-      <div className="gallery__grid">
+    <>
+      <div className="gap-2 grid sm:grid-cols-2 p-2 sm:p-4 md:grid-cols-3 lg:grid-cols-4">
         {posts.map((post, index) => (
-          <div
-            key={post.id}
-            className={`gallery__item ${
-              post.imageIsBlurred ? "gallery__item--blurred" : ""
-            }`}
-          >
-            <img
-              src={post.imagePath}
-              onLoad={() => handlePostLoad(post.id)}
-              className="gallery__image"
-            />
-            {post.imageIsBlurred && loadedPosts.includes(post.id) && (
-              <button
-                className="gallery__toggle-blur-button"
-                onClick={() => toggleBlur(post.id)}
-              >
-                Show Image
-              </button>
-            )}
-            <div
-              className={`gallery__click-overlay ${
-                !post.imageIsBlurred ? "gallery__click-overlay--safe" : ""
-              }`}
-              onClick={() => handleImageClick(index)}
-            ></div>
-          </div>
+          <Card key={index} shadow="sm">
+            <CardBody className="overflow-visible p-0 relative cursor-pointer">
+              <Image
+                isZoomed={!post.imageIsBlurred}
+                className={`w-full object-cover sm:h-[250px] md:h-[300px] lg:h-[400px] ${
+                  post.imageIsBlurred ? "filter blur-lg" : ""
+                }`}
+                radius="lg"
+                shadow="sm"
+                src={post.imagePath}
+                width="100%"
+                onClick={() => handleImageClick(index)}
+                onLoad={() => handlePostLoad(post.id)}
+              />
+              {post.imageIsBlurred && loadedPosts.includes(post.id) && (
+                <Button
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-70 text-white px-4 py-2 rounded z-10"
+                  onPress={() => toggleBlur(post.id)}
+                >
+                  Show Image
+                </Button>
+              )}
+            </CardBody>
+          </Card>
         ))}
+
         <div ref={observerRef} className="gallery__observer"></div>
       </div>
+
       {isLoading && (
         <div className="gallery__loading-container">
           <Spinner data-testid="loading-spinner" size="lg" />
         </div>
       )}
+
       {selectedIndex !== null && (
         <ImageModal
           post={posts[selectedIndex]}
@@ -110,7 +111,7 @@ const GalleryPage: React.FC = () => {
           onNavigate={handleNavigate}
         />
       )}
-    </div>
+    </>
   );
 };
 
