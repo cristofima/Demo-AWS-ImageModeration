@@ -70,7 +70,7 @@ const GalleryPage: React.FC = () => {
             <CardBody className="overflow-visible p-0 relative cursor-pointer">
               <Image
                 isZoomed={!post.imageIsBlurred}
-                className={`w-full object-cover sm:h-[250px] md:h-[300px] lg:h-[400px] ${
+                className={`w-full h-[400px] object-cover ${
                   post.imageIsBlurred ? "filter blur-lg" : ""
                 }`}
                 radius="lg"

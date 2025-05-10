@@ -13,6 +13,8 @@ import { signOut } from "@aws-amplify/auth";
 import { useUserData } from "../../hooks";
 import { truncateString } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
+import { FaUser } from "react-icons/fa";
+import { FiLogOut } from "react-icons/fi";
 
 const UserAccountDropdown = () => {
   const { user } = useUserData();
@@ -58,14 +60,19 @@ const UserAccountDropdown = () => {
               />
             </Tooltip>
           </DropdownItem>
-          <DropdownItem key="profile" href="/profile">
+          <DropdownItem key="profile" href="/profile" startContent={<FaUser />}>
             Profile
           </DropdownItem>
-          <DropdownItem key="settings">Settings</DropdownItem>
         </DropdownSection>
 
         <DropdownSection aria-label="Log Out">
-          <DropdownItem data-testid="logout-button" key="logout" color="danger" onPress={handleSignOut}>
+          <DropdownItem
+            data-testid="logout-button"
+            key="logout"
+            color="danger"
+            onPress={handleSignOut}
+            startContent={<FiLogOut />}
+          >
             Log Out
           </DropdownItem>
         </DropdownSection>

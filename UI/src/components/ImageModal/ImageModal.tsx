@@ -10,7 +10,8 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { FaChevronLeft, FaChevronRight, FaTrashCan } from "react-icons/fa6";
+import { FaTrashCan, FaXmark } from "react-icons/fa6";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 interface ImageModalProps {
   post: Post;
@@ -121,6 +122,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 data-testid="close-button"
                 onPress={onModalClose}
                 isDisabled={isDeleting}
+                startContent={!isDeleting && <FaXmark />}
               >
                 Close
               </Button>
