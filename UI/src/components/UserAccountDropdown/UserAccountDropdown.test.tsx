@@ -3,6 +3,7 @@ import { vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import UserAccountDropdown from "./UserAccountDropdown";
 import { useUserData } from "../../hooks";
+import { User } from "../../interfaces";
 
 vi.mock("../../hooks/useUserData", () => ({
   useUserData: vi.fn(),
@@ -18,7 +19,12 @@ describe("UserAccountDropdown", () => {
 
   beforeEach(() => {
     vi.mocked(useUserData).mockReturnValue({
-      user: { name: "John", familyName: "Doe", email: "john.doe@example.com" },
+      user: {
+        name: "John",
+        familyName: "Doe",
+        email: "john.doe@example.com",
+      } as unknown as User,
+      updateUser: vi.fn(),
     });
     vi.mocked(mockSignOut).mockResolvedValue(undefined);
   });
