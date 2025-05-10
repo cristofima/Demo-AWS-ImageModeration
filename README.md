@@ -288,11 +288,11 @@ The system classifies images into different categories based on AWS Rekognition'
 
 _(No offensive content)_
 
-![No offensive content](screenshots/no-offensive-content-desktop.PNG)
+![No offensive content](screenshots/no-offensive-content-desktop.png)
 
 _(Mobile view)_
 
-![Mobile View](screenshots/no-offensive-content-mobile.PNG)
+![Mobile View](screenshots/no-offensive-content-mobile.png)
 
 ### **Example of Moderated Images (Blurred)**
 
@@ -302,7 +302,7 @@ _(Contains sensitive content, blurred for safety)_
 
 _(Mobile view)_
 
-![Mobile View](screenshots/offensive-content-mobile.PNG)
+![Mobile View](screenshots/offensive-content-mobile.png)
 
 ## API Endpoints
 
