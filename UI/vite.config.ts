@@ -20,14 +20,15 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: "jsdom",
-      setupFiles: ["./src/setupTests.ts"],
+      setupFiles: ["./src/vitest.setup.ts"],
       coverage: {
         reporter: ["text", "html", "json"],
         include: ["src/**/*.{ts,tsx}"],
         reportOnFailure: true,
         exclude: [
           "src/**/*.test.tsx",
-          "src/setupTests.ts",
+          "src/**/*.test.ts",
+          "src/vitest.setup.ts",
           "src/main.tsx",
           "src/App.tsx",
           "src/*.d.ts",
