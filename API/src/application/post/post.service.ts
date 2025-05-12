@@ -7,7 +7,7 @@ import { RekognitionService } from '../../infrastructure/aws/rekognition.service
 import { getModerationStatus } from 'src/shared/utils/moderation.util';
 import { mapToPostModel } from 'src/application/post/mapper/post.mapper';
 import { UserModel } from 'src/infrastructure/auth/user.model';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -67,7 +67,7 @@ export class PostService {
   }
 
   async create(file: Express.Multer.File, user: UserModel) {
-    const uuid = uuidv4();
+    const uuid = randomUUID();
     const folder = this.configService.get<string>('AWS_S3_BUCKET_FOLDER');
     const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
     const fileExtension = file.originalname.split('.').pop();
