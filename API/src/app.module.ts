@@ -8,7 +8,7 @@ import { AuthModule } from './infrastructure/auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [`.env.${(process.env.NODE_ENV || 'local').trim()}`, '.env'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -20,6 +20,11 @@ import { AuthModule } from './infrastructure/auth/auth.module';
       autoLoadEntities: true,
       schema: 'public',
       synchronize: false,
+      retryAttempts: 5,
+      ssl:
+        process.env.NODE_ENV === 'production'
+          ? { rejectUnauthorized: false }
+          : false,
     }),
     AuthModule,
     PostModule,
