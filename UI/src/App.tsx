@@ -9,7 +9,6 @@ import {
 import { GalleryPage, UploadPage, ProfilePage } from "./pages";
 import { MainLayout } from "./layouts";
 import { withAuthenticator } from "@aws-amplify/ui-react";
-import "./App.css";
 import { HeroUIProvider } from "@heroui/react";
 import { ProtectedRoute } from "./components";
 
