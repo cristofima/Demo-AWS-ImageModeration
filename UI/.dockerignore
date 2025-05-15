@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+amplify
+.git
+.gitignore
+Dockerfile
+.dockerignore
+*.md
+eslint.config.js
+.env*

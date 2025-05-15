@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  # API Service (NestJS)
+  api:
+    build:
+      context: ./API
+    container_name: my_nestjs_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000 (adjust if your API uses a different port)
+    environment:
+      - NODE_ENV=production
+      - DB_NAME=
+      - DB_USER=
+      - DB_PASSWORD=
+      - DB_HOST=
+
+      - COGNITO_APP_CLIENT_ID=
+      - COGNITO_APP_REGION=us-west-2
+      - COGNITO_USER_POOL_ID=
+
+      - AWS_S3_ACCESS_KEY=
+      - AWS_S3_SECRET_ACCESS_KEY=
+      - AWS_S3_REGION=us-west-2
+      - AWS_S3_BUCKET_NAME=
+      - AWS_S3_BUCKET_FOLDER=images
+
+      - AWS_REKOGNITION_REGION=us-west-2
+      - AWS_REKOGNITION_ACCESS_KEY=
+      - AWS_REKOGNITION_SECRET_ACCESS_KEY=
+
+  # UI Service (React)
+  ui:
+    build:
+      context: ./UI
+    container_name: my_react_ui
+    restart: unless-stopped
+    ports:
+      - "8080:80" # Map host port 8080 to container port 80 (Nginx default)
+    environment:
+      # Use host-accessible API URL for browser clients
+      - VITE_API_BASE_URL=http://localhost:3000/api
+    depends_on:
+      - api
