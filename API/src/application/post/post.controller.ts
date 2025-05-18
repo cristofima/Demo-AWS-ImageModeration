@@ -28,6 +28,10 @@ import { PostModel } from './models/post.model';
 import { JwtAuthGuard } from 'src/infrastructure/auth/jwt-auth.guard';
 import { UserModel } from 'src/infrastructure/auth/user.model';
 import { MAX_FILE_SIZE } from 'src/domain/constants/file.constant';
+import {
+  validateNotEmptyFile,
+  validateImageMagicNumber,
+} from 'src/shared/utils/file-validation.util';
 
 @Controller('api/posts')
 @UseGuards(JwtAuthGuard)
@@ -87,11 +91,15 @@ export class PostController {
           new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE }),
           new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
         ],
+        fileIsRequired: true,
       }),
     )
     image: Express.Multer.File,
     @Request() req: any,
   ) {
+    validateNotEmptyFile(image);
+    validateImageMagicNumber(image.buffer);
+
     const user: UserModel = req.user;
     return await this.postService.create(image, user);
   }

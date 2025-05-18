@@ -3,10 +3,10 @@ import { PostController } from './post.controller';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from 'src/infrastructure/auth/jwt-auth.guard';
 import { PostModel } from './models/post.model';
+import * as utils from 'src/shared/utils/file-validation.util';
 
 describe('PostController', () => {
   let postController: PostController;
-  let postService: PostService;
 
   const mockPostService = {
     findAll: jest.fn(),
@@ -30,7 +30,6 @@ describe('PostController', () => {
       .compile();
 
     postController = module.get<PostController>(PostController);
-    postService = module.get<PostService>(PostService);
   });
 
   describe('findAll', () => {
@@ -80,6 +79,11 @@ describe('PostController', () => {
       mockPostService.create.mockResolvedValue(post);
 
       const req = { user };
+      jest.spyOn(utils, 'validateNotEmptyFile').mockImplementation(() => file);
+      jest
+        .spyOn(utils, 'validateImageMagicNumber')
+        .mockImplementation(() => true);
+
       expect(await postController.create(file, req)).toEqual(post);
       expect(mockPostService.create).toHaveBeenCalledWith(file, user);
     });
