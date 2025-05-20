@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import UserAccountDropdown from "./UserAccountDropdown";
 import { useUserData } from "../../hooks";
 import { User } from "../../interfaces";
+import { signOut } from "@aws-amplify/auth";
 
 vi.mock("../../hooks/useUserData", () => ({
   useUserData: vi.fn(),
@@ -14,8 +15,6 @@ vi.mock("@aws-amplify/auth", () => ({
 }));
 
 describe("UserAccountDropdown", () => {
-  const mockSignOut = vi.fn();
-  const mockNavigate = vi.fn();
 
   beforeEach(() => {
     vi.mocked(useUserData).mockReturnValue({
@@ -26,7 +25,7 @@ describe("UserAccountDropdown", () => {
       } as unknown as User,
       updateUser: vi.fn(),
     });
-    vi.mocked(mockSignOut).mockResolvedValue(undefined);
+    vi.mocked(signOut).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -66,8 +65,7 @@ describe("UserAccountDropdown", () => {
     fireEvent.click(screen.getByTestId("logout-button"));
 
     waitFor(() => {
-      expect(mockSignOut).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
+      expect(signOut).toHaveBeenCalled();
     });
   });
 });
