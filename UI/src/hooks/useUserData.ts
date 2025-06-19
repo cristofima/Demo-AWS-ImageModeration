@@ -16,9 +16,9 @@ export const useUserData = () => {
       if (email) {
         setUser({
           email,
-          name: name || "",
-          nickname: nickname || "",
-          familyName: family_name || "",
+          name: name ?? "",
+          nickname: nickname ?? "",
+          familyName: family_name ?? "",
         });
       }
     } catch (error: unknown) {

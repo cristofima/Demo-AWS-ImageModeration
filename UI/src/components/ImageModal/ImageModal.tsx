@@ -107,6 +107,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                   </Button>
                 )}
                 <img
+                  alt=""
                   src={post.imagePath}
                   className="object-contain max-h-full max-w-full"
                   style={{ maxHeight: "100%", maxWidth: "100%" }}

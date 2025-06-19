@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
 export function validateNotEmptyFile(file: Express.Multer.File) {
-  if (!file || !file.buffer || file.buffer.length === 0) {
+  if (!file?.buffer?.length) {
     throw new BadRequestException('Uploaded file is empty');
   }
   return file;

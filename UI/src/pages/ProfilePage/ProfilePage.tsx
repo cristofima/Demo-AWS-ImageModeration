@@ -57,7 +57,7 @@ const ProfilePage: React.FC = () => {
       });
       toast.success("Profile updated successfully");
       updateUser(updatableAttributes);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update Profile");
     }
   };
@@ -97,33 +97,31 @@ const ProfilePage: React.FC = () => {
                     : {}
                 }
                 render={({ field }) => (
-                  <>
-                    <Input
-                      {...field}
-                      id={key}
-                      data-testid={key}
-                      isRequired
-                      isDisabled={
-                        ["email", "nickname"].includes(key) || isSubmitting
+                  <Input
+                    {...field}
+                    id={key}
+                    data-testid={key}
+                    isRequired
+                    isDisabled={
+                      ["email", "nickname"].includes(key) || isSubmitting
+                    }
+                    className="profile__input"
+                    maxLength={50}
+                    minLength={3}
+                    errorMessage={({ validationDetails }) => {
+                      if (validationDetails.tooShort) {
+                        return "Please enter at least 3 characters";
                       }
-                      className="profile__input"
-                      maxLength={50}
-                      minLength={3}
-                      errorMessage={({ validationDetails }) => {
-                        if (validationDetails.tooShort) {
-                          return "Please enter at least 3 characters";
-                        }
 
-                        if (validationDetails.tooLong) {
-                          return "Please enter less than 51 characters";
-                        }
+                      if (validationDetails.tooLong) {
+                        return "Please enter less than 51 characters";
+                      }
 
-                        if (validationDetails.valueMissing) {
-                          return "This field is required";
-                        }
-                      }}
-                    />
-                  </>
+                      if (validationDetails.valueMissing) {
+                        return "This field is required";
+                      }
+                    }}
+                  />
                 )}
               />
             </div>

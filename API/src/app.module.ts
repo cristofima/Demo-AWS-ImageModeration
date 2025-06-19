@@ -8,7 +8,7 @@ import { AuthModule } from './infrastructure/auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`.env.${(process.env.NODE_ENV || 'local').trim()}`, '.env'],
+      envFilePath: [`.env.${(process.env.NODE_ENV ?? 'local').trim()}`, '.env'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -30,4 +30,4 @@ import { AuthModule } from './infrastructure/auth/auth.module';
     PostModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -41,7 +41,7 @@ describe('PostController', () => {
       mockPostService.findAll.mockResolvedValue(result);
 
       const req = { user: { userId: 'user1' } };
-      expect(await postController.findAll(1, 10, req)).toEqual(result);
+      expect(await postController.findAll(req, 1, 10)).toEqual(result);
       expect(mockPostService.findAll).toHaveBeenCalledWith(1, 10, 'user1');
     });
   });

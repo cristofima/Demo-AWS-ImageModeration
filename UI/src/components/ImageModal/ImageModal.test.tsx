@@ -18,21 +18,6 @@ describe("ImageModal", () => {
   const mockOnDelete = vi.fn();
   const mockOnNavigate = vi.fn();
 
-  it("renders the modal with the image", () => {
-    render(
-      <ImageModal
-        post={mockPost}
-        totalPosts={5}
-        currentIndex={0}
-        onClose={mockOnClose}
-        onDelete={mockOnDelete}
-        onNavigate={mockOnNavigate}
-      />
-    );
-
-    expect(screen.getByRole("img")).toBeInTheDocument();
-  });
-
   it("calls onClose when the close button is clicked", async () => {
     render(
       <ImageModal

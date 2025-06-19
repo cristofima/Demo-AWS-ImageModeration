@@ -21,7 +21,7 @@ async function bootstrap() {
 
   // Enable CORS with strict configuration
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Set allowed origin(s)
+    origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173', // Set allowed origin(s)
     methods: 'GET,HEAD,POST,PUT,DELETE',
     credentials: true,
   });
@@ -35,7 +35,7 @@ async function bootstrap() {
       const message =
         process.env.NODE_ENV === 'production'
           ? 'Internal server error'
-          : exception.message || 'Internal server error';
+          : exception.message ?? 'Internal server error';
       response.status(status).json({ statusCode: status, message });
     },
   });

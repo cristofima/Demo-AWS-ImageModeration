@@ -32,6 +32,6 @@ export class RekognitionService {
     const response = await this.rekognition.detectModerationLabels({
       Image: { Bytes: imageBuffer },
     });
-    return response.ModerationLabels || [];
+    return response.ModerationLabels ?? [];
   }
 }

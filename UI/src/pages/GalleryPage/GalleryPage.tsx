@@ -66,7 +66,7 @@ const GalleryPage: React.FC = () => {
     <>
       <div className="gap-2 grid sm:grid-cols-2 p-2 sm:p-4 md:grid-cols-3 lg:grid-cols-4">
         {posts.map((post, index) => (
-          <Card key={index} shadow="sm">
+          <Card key={post.id} shadow="sm">
             <CardBody className="overflow-visible p-0 relative cursor-pointer">
               <Image
                 isZoomed={!post.imageIsBlurred}

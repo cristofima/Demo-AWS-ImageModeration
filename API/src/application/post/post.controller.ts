@@ -36,7 +36,7 @@ import {
 @Controller('api/posts')
 @UseGuards(JwtAuthGuard)
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) { }
 
   @Get()
   @ApiOkResponse({
@@ -45,9 +45,9 @@ export class PostController {
     isArray: true,
   })
   async findAll(
+    @Request() req: any,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Request() req: any,
   ) {
     const userId: string = req.user.userId;
     return this.postService.findAll(Number(page), Number(limit), userId);

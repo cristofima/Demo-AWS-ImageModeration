@@ -12,7 +12,7 @@ const UploadPage: React.FC = () => {
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0] || null;
+      const file = event.target.files?.[0] ?? null;
       if (file && file.size > MAX_FILE_SIZE) {
         toast.error("File size exceeds 5MB");
         return;

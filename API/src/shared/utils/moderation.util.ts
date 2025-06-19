@@ -18,15 +18,11 @@ function groupByHierarchy(labels: ModerationLabel[]): Hierarchy {
     const { Name, ParentName, Confidence } = label;
 
     // Create a new node for the current label if it doesn't exist
-    if (!nodesMap[Name]) {
-      nodesMap[Name] = ParentName ? { Confidence } : {};
-    }
+    nodesMap[Name] ??= ParentName ? { Confidence } : {};
 
     // If the label has a parent, attach it to the parent's node
     if (ParentName) {
-      if (!nodesMap[ParentName]) {
-        nodesMap[ParentName] = {};
-      }
+      nodesMap[ParentName] ??= {};
 
       // Ensure the parent node includes the current node
       nodesMap[ParentName][Name] = nodesMap[Name];
@@ -52,80 +48,75 @@ function validateImageWithPriorities(hierarchy: Hierarchy): Status {
     'Hate Symbols',
   ];
 
-  function findDeepestNode(
-    node: any,
-    currentPath: string[] = [],
-  ): { confidence: number | null; path: string[] } {
-    if (typeof node !== 'object' || node === null) {
-      return { confidence: null, path: [] };
-    }
-
-    let deepestNode: { confidence: number | null; path: string[] } = {
-      confidence: null,
-      path: [],
-    };
-
-    for (const [subKey, value] of Object.entries(node)) {
-      if (
-        subKey === 'Confidence' &&
-        typeof value === 'number' &&
-        Object.keys(node).length === 1
-      ) {
-        deepestNode = { confidence: value, path: currentPath };
-      } else if (typeof value === 'object') {
-        const subNode = findDeepestNode(value, [...currentPath, subKey]);
-        if (
-          subNode.confidence !== null &&
-          (deepestNode.confidence === null ||
-            subNode.path.length > deepestNode.path.length)
-        ) {
-          deepestNode = subNode;
-        }
-      }
-    }
-
-    return deepestNode;
-  }
-
   for (const category of priorities) {
-    if (category in hierarchy) {
-      const { confidence, path } = findDeepestNode(hierarchy[category]);
-      if (confidence !== null) {
-        let currentThresholds = thresholds[category];
+    const categoryNode = hierarchy[category];
+    if (!categoryNode) continue;
 
-        for (const key of path) {
-          if (
-            currentThresholds &&
-            typeof currentThresholds === 'object' &&
-            key in currentThresholds
-          ) {
-            currentThresholds = currentThresholds[key] as any;
-          } else {
-            break;
-          }
-        }
+    const { confidence, path } = findDeepestNode(categoryNode);
+    if (confidence === null) continue;
 
-        if (
-          currentThresholds &&
-          typeof currentThresholds === 'object' &&
-          'blur' in currentThresholds &&
-          'reject' in currentThresholds
-        ) {
-          if (
-            typeof currentThresholds.reject === 'number' &&
-            confidence >= currentThresholds.reject
-          ) {
-            return 'REJECTED';
-          } else if (
-            typeof currentThresholds.blur === 'number' &&
-            confidence >= currentThresholds.blur
-          ) {
-            return 'BLURRED';
-          }
-        }
+    const categoryThresholds = resolveThresholdPath(thresholds[category], path);
+    const status = evaluateStatus(confidence, categoryThresholds);
+    if (status !== 'APPROVED') return status;
+  }
+
+  return 'APPROVED';
+}
+
+function findDeepestNode(
+  node: any,
+  currentPath: string[] = [],
+): { confidence: number | null; path: string[] } {
+  if (typeof node !== 'object' || node === null) {
+    return { confidence: null, path: [] };
+  }
+
+  if (
+    'Confidence' in node &&
+    typeof node.Confidence === 'number' &&
+    Object.keys(node).length === 1
+  ) {
+    return { confidence: node.Confidence, path: currentPath };
+  }
+
+  let deepest: { confidence: number | null; path: string[] } = {
+    confidence: null,
+    path: [],
+  };
+
+  for (const [key, value] of Object.entries(node)) {
+    if (typeof value === 'object') {
+      const result = findDeepestNode(value, [...currentPath, key]);
+      if (
+        result.confidence !== null &&
+        result.path.length > deepest.path.length
+      ) {
+        deepest = result;
       }
     }
   }
+
+  return deepest;
+}
+
+function resolveThresholdPath(thresholdNode: any, path: string[]): any {
+  let current = thresholdNode;
+  for (const key of path) {
+    if (current && typeof current === 'object' && key in current) {
+      current = current[key];
+    } else {
+      return null;
+    }
+  }
+  return current;
+}
+
+function evaluateStatus(confidence: number, thresholds: any): Status {
+  if (!thresholds || typeof thresholds !== 'object') return 'APPROVED';
+
+  const { reject, blur } = thresholds;
+  if (typeof reject === 'number' && confidence >= reject) return 'REJECTED';
+  if (typeof blur === 'number' && confidence >= blur) return 'BLURRED';
 
   return 'APPROVED';
 }

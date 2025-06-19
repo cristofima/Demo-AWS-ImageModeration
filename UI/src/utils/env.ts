@@ -13,12 +13,9 @@ declare global {
 // Utility to get env vars from VITE_ or runtime-injected window.ENV
 export function getEnvVar(key: string): string | undefined {
   // Prefer runtime-injected env (from Docker entrypoint)
-  if (
-    typeof globalThis !== "undefined" &&
-    (globalThis as any).ENV &&
-    (globalThis as any).ENV[key]
-  ) {
-    return (globalThis as any).ENV[key];
+  const env = (globalThis as any)?.ENV;
+  if (env?.[key]) {
+    return env[key];
   }
   // Fallback to Vite env
   const viteEnv = (import.meta as unknown as ImportMeta).env;
