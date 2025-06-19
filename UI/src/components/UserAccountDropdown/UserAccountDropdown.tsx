@@ -17,12 +17,17 @@ import { FaUser } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 
 const UserAccountDropdown = () => {
-  const { user } = useUserData();
+  const { user, resetUser } = useUserData();
   const navigate = useNavigate();
-
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/", { replace: true });
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      resetUser();
+      navigate("/", { replace: true });
+    }
   };
 
   const userInitials =

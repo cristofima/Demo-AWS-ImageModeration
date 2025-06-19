@@ -15,7 +15,6 @@ vi.mock("@aws-amplify/auth", () => ({
 }));
 
 describe("UserAccountDropdown", () => {
-
   beforeEach(() => {
     vi.mocked(useUserData).mockReturnValue({
       user: {
@@ -24,6 +23,7 @@ describe("UserAccountDropdown", () => {
         email: "john.doe@example.com",
       } as unknown as User,
       updateUser: vi.fn(),
+      resetUser: vi.fn(),
     });
     vi.mocked(signOut).mockResolvedValue(undefined);
   });
