@@ -9,6 +9,7 @@ import { mapToPostModel } from 'src/application/post/mapper/post.mapper';
 import { UserModel } from 'src/infrastructure/auth/user.model';
 import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
+import { BatchUploadResult } from 'src/domain/types/batch-upload.types';
 
 @Injectable()
 export class PostService {
@@ -18,7 +19,7 @@ export class PostService {
     private readonly s3Service: S3Service,
     private readonly rekognitionService: RekognitionService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async findAll(page: number, limit: number, userId: string) {
     const posts = await this.postRepository.find({
@@ -105,6 +106,74 @@ export class PostService {
     await this.postRepository.save(post);
 
     return mapToPostModel(post);
+  }
+
+  async createBatch(files: Express.Multer.File[], user: UserModel) {
+    const results: BatchUploadResult = {
+      successful: [],
+      failed: [],
+    };
+
+    // Process each file
+    for (const file of files) {
+      try {
+        const uuid = randomUUID();
+        const folder = this.configService.get<string>('AWS_S3_BUCKET_FOLDER');
+        const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
+        const fileExtension = file.originalname.split('.').pop();
+        const imagePath = `${folder}/${uuid}.${fileExtension}`;
+
+        // Upload to S3
+        await this.s3Service.uploadFile(
+          bucket,
+          imagePath,
+          file.buffer,
+          file.mimetype,
+          {
+            userName: user.nickname,
+          },
+        );
+
+        // Check content moderation
+        const moderationLabels =
+          await this.rekognitionService.detectModerationLabels(file.buffer);
+        const status = getModerationStatus(moderationLabels);
+
+        if (status === 'REJECTED') {
+          await this.s3Service.deleteFile(bucket, imagePath);
+          results.failed.push({
+            filename: file.originalname,
+            error: 'Image rejected due to inappropriate content',
+          });
+          continue;
+        }
+
+        // Save to database
+        const post: Partial<Post> = {
+          imagePath,
+          imageIsBlurred: status === 'BLURRED',
+          moderationLabels,
+          createdAt: new Date(),
+          userId: user.userId,
+          createdBy: user.nickname,
+        };
+
+        this.postRepository.create(post);
+        await this.postRepository.save(post);
+
+        results.successful.push({
+          filename: file.originalname,
+          post: mapToPostModel(post),
+        });
+      } catch (error) {
+        results.failed.push({
+          filename: file.originalname,
+          error: error.message || 'Unknown error occurred',
+        });
+      }
+    }
+
+    return results;
   }
 
   private async findPostById(id: number): Promise<Post> {

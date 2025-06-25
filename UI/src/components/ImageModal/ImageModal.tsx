@@ -1,7 +1,5 @@
-import React, { useTransition, useCallback, useEffect } from "react";
-import { toast } from "react-toastify";
+import React, { useCallback, useEffect } from "react";
 import { Post } from "../../interfaces";
-import { postService } from "../../services";
 import {
   Button,
   Modal,
@@ -20,6 +18,7 @@ interface ImageModalProps {
   onClose: () => void;
   onDelete: () => void;
   onNavigate: (index: number) => void;
+  isDeleting?: boolean;
 }
 
 const ImageModal: React.FC<ImageModalProps> = ({
@@ -29,13 +28,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
   onClose,
   onDelete,
   onNavigate,
+  isDeleting = false,
 }) => {
-  const [isDeleting, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
     onOpen();
-  }, []);
+  }, [onOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,17 +50,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
   }, [currentIndex, totalPosts, onNavigate]);
 
   const handleDelete = useCallback(() => {
-    startTransition(async () => {
-      try {
-        await postService.deletePost(post.id);
-        toast.success("Post deleted successfully");
-        onDelete();
-        onClose();
-      } catch {
-        toast.error("Failed to delete post");
-      }
-    });
-  }, [post.id, onDelete, onClose]);
+    onDelete();
+  }, [onDelete]);
 
   return (
     <Modal

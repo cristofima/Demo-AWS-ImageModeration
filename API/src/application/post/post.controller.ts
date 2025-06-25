@@ -10,11 +10,12 @@ import {
   Post,
   Query,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { PostService } from './post.service';
 import {
   ApiBody,
@@ -27,7 +28,7 @@ import {
 import { PostModel } from './models/post.model';
 import { JwtAuthGuard } from 'src/infrastructure/auth/jwt-auth.guard';
 import { UserModel } from 'src/infrastructure/auth/user.model';
-import { MAX_FILE_SIZE } from 'src/domain/constants/file.constant';
+import { MAX_FILE_SIZE, MAX_FILES_COUNT } from 'src/domain/constants/file.constant';
 import {
   validateNotEmptyFile,
   validateImageMagicNumber,
@@ -102,6 +103,50 @@ export class PostController {
 
     const user: UserModel = req.user;
     return await this.postService.create(image, user);
+  }
+
+  @Post('batch')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @UseInterceptors(FilesInterceptor('images', MAX_FILES_COUNT))
+  @HttpCode(201)
+  @ApiCreatedResponse({
+    description: 'Batch upload results.',
+  })
+  async createBatch(
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+        ],
+        fileIsRequired: true,
+      }),
+    )
+    images: Express.Multer.File[],
+    @Request() req: any,
+  ) {
+    // Validate each file
+    images.forEach((image) => {
+      validateNotEmptyFile(image);
+      validateImageMagicNumber(image.buffer);
+    });
+
+    const user: UserModel = req.user;
+    return await this.postService.createBatch(images, user);
   }
 
   @Delete(':id')
