@@ -6,13 +6,23 @@ import {
 } from "@tanstack/react-query";
 import { postService, UploadResponse } from "../services/postService";
 import { toast } from "react-toastify";
-import { Pagination } from "../interfaces";
+import { Pagination, Post } from "../interfaces";
 import { AxiosError, AxiosResponse } from "axios";
 
-// Error response interface
 interface ErrorResponse {
     message: string;
 }
+
+// Type for infinite query data
+type InfinitePostData = {
+    pages: AxiosResponse<Pagination>[];
+    pageParams: number[];
+};
+
+type MutationContext = {
+    previousInfiniteData?: InfinitePostData;
+    previousListData?: [unknown, unknown][];
+};
 
 // Query keys
 export const postKeys = {
@@ -77,8 +87,8 @@ export const useUploadMultiplePosts = () => {
         onSuccess: (response: AxiosResponse<UploadResponse>) => {
             queryClient.invalidateQueries({ queryKey: postKeys.lists() });
             queryClient.invalidateQueries({ queryKey: postKeys.infinite() });
-            const successful = response.data.successful?.length || 0;
-            const failed = response.data.failed?.length || 0;
+            const successful = response.data.successful?.length ?? 0;
+            const failed = response.data.failed?.length ?? 0;
 
             if (successful > 0) {
                 toast.success(`${successful} post(s) uploaded successfully!`);
@@ -99,90 +109,117 @@ export const useUploadMultiplePosts = () => {
 export const useDeletePost = () => {
     const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (id: number) => postService.deletePost(id),
-        onMutate: async (deletedId: number) => {
-            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries({ queryKey: postKeys.infinite() });
-            await queryClient.cancelQueries({ queryKey: postKeys.lists() });
+    const cancelQueries = async () => {
+        await queryClient.cancelQueries({ queryKey: postKeys.infinite() });
+        await queryClient.cancelQueries({ queryKey: postKeys.lists() });
+    };
 
-            // Snapshot the previous value
-            const previousInfiniteData = queryClient.getQueryData(
-                postKeys.infinite()
-            );
-            const previousListData = queryClient.getQueriesData({
-                queryKey: postKeys.lists(),
-            });
+    const snapshotPreviousData = (): MutationContext => {
+        const previousInfiniteData = queryClient.getQueryData<InfinitePostData>(
+            postKeys.infinite()
+        );
+        const previousListData = queryClient.getQueriesData({
+            queryKey: postKeys.lists(),
+        });
+        return { previousInfiniteData, previousListData };
+    };
 
-            // Optimistically update infinite query data
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            queryClient.setQueryData(postKeys.infinite(), (old: any) => {
-                if (!old) return old;
+    const updateInfiniteData = (deletedId: number) => {
+        queryClient.setQueryData<InfinitePostData>(postKeys.infinite(), (old) => {
+            if (!old) return old;
 
-                return {
-                    ...old,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    pages: old.pages.map((page: any) => ({
-                        ...page,
-                        data: {
-                            ...page.data,
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            data: page.data.data.filter((post: any) => post.id !== deletedId),
-                            metadata: {
-                                ...page.data.metadata,
-                                total: page.data.metadata.total - 1,
-                            },
-                        },
-                    })),
-                };
-            });
+            const updatedPages = old.pages.map((page) => ({
+                ...page,
+                data: {
+                    ...page.data,
+                    data: page.data.data.filter((post: Post) => post.id !== deletedId),
+                    metadata: {
+                        ...page.data.metadata,
+                        totalRecords: page.data.metadata.totalRecords - 1,
+                    },
+                },
+            }));
 
-            // Optimistically update paginated queries
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            queryClient.setQueriesData({ queryKey: postKeys.lists() }, (old: any) => {
+            return { ...old, pages: updatedPages };
+        });
+    };
+
+    const updateListData = (deletedId: number) => {
+        queryClient.setQueriesData<AxiosResponse<Pagination>>(
+            { queryKey: postKeys.lists() },
+            (old) => {
                 if (!old?.data) return old;
 
                 return {
                     ...old,
                     data: {
                         ...old.data,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        data: old.data.data.filter((post: any) => post.id !== deletedId),
+                        data: old.data.data.filter((post: Post) => post.id !== deletedId),
                         metadata: {
                             ...old.data.metadata,
-                            total: old.data.metadata.total - 1,
+                            totalRecords: old.data.metadata.totalRecords - 1,
                         },
                     },
                 };
+            }
+        );
+    };
+
+    const rollbackData = (context: MutationContext | undefined) => {
+        if (context?.previousInfiniteData) {
+            queryClient.setQueryData(
+                postKeys.infinite(),
+                context.previousInfiniteData
+            );
+        }
+
+        if (context?.previousListData) {
+            context.previousListData.forEach(([queryKey, data]) => {
+                queryClient.setQueryData(queryKey as unknown[], data);
             });
+        }
+    };
 
-            // Return a context object with the snapshotted value
-            return { previousInfiniteData, previousListData };
-        },
-        onSuccess: () => {
-            toast.success("Post deleted successfully!");
-        },
-        onError: (error: AxiosError<ErrorResponse>, _deletedId, context) => {
-            // If the mutation fails, use the context returned from onMutate to roll back
-            if (context?.previousInfiniteData) {
-                queryClient.setQueryData(
-                    postKeys.infinite(),
-                    context.previousInfiniteData
-                );
-            }
-            if (context?.previousListData) {
-                context.previousListData.forEach(([queryKey, data]) => {
-                    queryClient.setQueryData(queryKey, data);
-                });
-            }
+    const handleMutate = async (deletedId: number): Promise<MutationContext> => {
+        await cancelQueries();
 
-            const message = error?.response?.data?.message || "Failed to delete post";
-            toast.error(message);
-        },
-        onSettled: () => {
-            // Always refetch after error or success to ensure we have correct data
-            queryClient.invalidateQueries({ queryKey: postKeys.infinite() });
-            queryClient.invalidateQueries({ queryKey: postKeys.lists() });
-        },
+        const context = snapshotPreviousData();
+
+        updateInfiniteData(deletedId);
+        updateListData(deletedId);
+
+        return context;
+    };
+
+    const handleSuccess = () => {
+        toast.success("Post deleted successfully!");
+    };
+
+    const handleError = (
+        error: AxiosError<ErrorResponse>,
+        _deletedId: number,
+        context: MutationContext | undefined
+    ) => {
+        rollbackData(context);
+        const message = error?.response?.data?.message || "Failed to delete post";
+        toast.error(message);
+    };
+
+    const handleSettled = () => {
+        queryClient.invalidateQueries({ queryKey: postKeys.infinite() });
+        queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+    };
+
+    return useMutation<
+        AxiosResponse<unknown>,
+        AxiosError<ErrorResponse>,
+        number,
+        MutationContext
+    >({
+        mutationFn: (id: number) => postService.deletePost(id),
+        onMutate: handleMutate,
+        onSuccess: handleSuccess,
+        onError: handleError,
+        onSettled: handleSettled,
     });
 };
