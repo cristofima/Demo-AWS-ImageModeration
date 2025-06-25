@@ -13,8 +13,9 @@ export const setUpRequestInterceptor = (apiClient: AxiosInstance): void => {
       return config;
     },
     (error) => {
-      console.error("Request error:", error);
-      return Promise.reject(error);
+      const wrappedError = error instanceof Error ? error : new Error(String(error));
+      console.error("Request error:", wrappedError);
+      return Promise.reject(wrappedError);
     }
   );
 };
