@@ -68,99 +68,27 @@ export class PostService {
   }
 
   async create(file: Express.Multer.File, user: UserModel) {
-    const uuid = randomUUID();
-    const folder = this.configService.get<string>('AWS_S3_BUCKET_FOLDER');
-    const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
-    const fileExtension = file.originalname.split('.').pop();
-    const imagePath = `${folder}/${uuid}.${fileExtension}`;
+    const { imagePath, bucket } = this.prepareUploadDetails(file);
+    await this.uploadFileToS3(file, imagePath, bucket, user);
 
-    await this.s3Service.uploadFile(
-      bucket,
-      imagePath,
-      file.buffer,
-      file.mimetype,
-      {
-        userName: user.nickname,
-      },
-    );
-
-    const moderationLabels =
-      await this.rekognitionService.detectModerationLabels(file.buffer);
-    const status = getModerationStatus(moderationLabels);
-
-    if (status === 'REJECTED') {
-      await this.s3Service.deleteFile(bucket, imagePath);
-      throw new BadRequestException('Image rejected');
-    }
-
-    const post: Partial<Post> = {
-      imagePath,
-      imageIsBlurred: status === 'BLURRED',
-      moderationLabels,
-      createdAt: new Date(),
-      userId: user.userId,
-      createdBy: user.nickname,
-    };
-
-    this.postRepository.create(post);
-    await this.postRepository.save(post);
-
+    const post = await this.moderateAndSavePost(file, imagePath, user, bucket);
     return mapToPostModel(post);
   }
 
   async createBatch(files: Express.Multer.File[], user: UserModel) {
-    const results: BatchUploadResult = {
-      successful: [],
-      failed: [],
-    };
+    const results: BatchUploadResult = { successful: [], failed: [] };
 
-    // Process each file
     for (const file of files) {
+      const { imagePath, bucket } = this.prepareUploadDetails(file);
       try {
-        const uuid = randomUUID();
-        const folder = this.configService.get<string>('AWS_S3_BUCKET_FOLDER');
-        const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
-        const fileExtension = file.originalname.split('.').pop();
-        const imagePath = `${folder}/${uuid}.${fileExtension}`;
+        await this.uploadFileToS3(file, imagePath, bucket, user);
 
-        // Upload to S3
-        await this.s3Service.uploadFile(
+        const post = await this.moderateAndSavePost(
+          file,
+          imagePath,
+          user,
           bucket,
-          imagePath,
-          file.buffer,
-          file.mimetype,
-          {
-            userName: user.nickname,
-          },
         );
-
-        // Check content moderation
-        const moderationLabels =
-          await this.rekognitionService.detectModerationLabels(file.buffer);
-        const status = getModerationStatus(moderationLabels);
-
-        if (status === 'REJECTED') {
-          await this.s3Service.deleteFile(bucket, imagePath);
-          results.failed.push({
-            filename: file.originalname,
-            error: 'Image rejected due to inappropriate content',
-          });
-          continue;
-        }
-
-        // Save to database
-        const post: Partial<Post> = {
-          imagePath,
-          imageIsBlurred: status === 'BLURRED',
-          moderationLabels,
-          createdAt: new Date(),
-          userId: user.userId,
-          createdBy: user.nickname,
-        };
-
-        this.postRepository.create(post);
-        await this.postRepository.save(post);
-
         results.successful.push({
           filename: file.originalname,
           post: mapToPostModel(post),
@@ -174,6 +102,63 @@ export class PostService {
     }
 
     return results;
+  }
+
+  private prepareUploadDetails(file: Express.Multer.File) {
+    const uuid = randomUUID();
+    const folder = this.configService.get<string>('AWS_S3_BUCKET_FOLDER');
+    const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
+    const fileExtension = file.originalname.split('.').pop();
+    const imagePath = `${folder}/${uuid}.${fileExtension}`;
+    return { imagePath, bucket };
+  }
+
+  private async uploadFileToS3(
+    file: Express.Multer.File,
+    imagePath: string,
+    bucket: string,
+    user: UserModel,
+  ) {
+    await this.s3Service.uploadFile(
+      bucket,
+      imagePath,
+      file.buffer,
+      file.mimetype,
+      {
+        userName: user.nickname,
+      },
+    );
+  }
+
+  private async moderateAndSavePost(
+    file: Express.Multer.File,
+    imagePath: string,
+    user: UserModel,
+    bucket: string,
+  ): Promise<Post> {
+    const moderationLabels =
+      await this.rekognitionService.detectModerationLabels(file.buffer);
+    const status = getModerationStatus(moderationLabels);
+
+    if (status === 'REJECTED') {
+      await this.s3Service.deleteFile(bucket, imagePath);
+      throw new BadRequestException(
+        'Image rejected due to inappropriate content',
+      );
+    }
+
+    const post: Partial<Post> = {
+      imagePath,
+      imageIsBlurred: status === 'BLURRED',
+      moderationLabels,
+      createdAt: new Date(),
+      userId: user.userId,
+      createdBy: user.nickname,
+    };
+
+    this.postRepository.create(post);
+    await this.postRepository.save(post);
+    return post as Post;
   }
 
   private async findPostById(id: number): Promise<Post> {
