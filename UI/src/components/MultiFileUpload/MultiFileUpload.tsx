@@ -160,6 +160,7 @@ const MultiFileUpload: React.FC<MultiFileUploadProps> = ({
       <CardBody className="p-6">
         {/* Drop Zone */}
         <div
+          data-testid="drop-zone"
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-200 ${
             dragActive
               ? "border-blue-500 bg-blue-50"
@@ -195,6 +196,7 @@ const MultiFileUpload: React.FC<MultiFileUploadProps> = ({
             onChange={handleFileChange}
             className="hidden"
             disabled={isUploading}
+            data-testid="file-input"
           />
         </div>
 
@@ -210,6 +212,7 @@ const MultiFileUpload: React.FC<MultiFileUploadProps> = ({
                 color="danger"
                 onPress={clearAllFiles}
                 isDisabled={isUploading}
+                data-testid="clear-files-button"
               >
                 Clear All
               </Button>
@@ -226,6 +229,9 @@ const MultiFileUpload: React.FC<MultiFileUploadProps> = ({
                       src={file.preview}
                       alt={file.name}
                       className="w-full h-32 object-cover rounded-md mb-2"
+                      data-testid={`file-preview-${selectedFiles.indexOf(
+                        file
+                      )}`}
                     />
                   )}
                   <div className="flex items-center justify-between">
@@ -244,6 +250,7 @@ const MultiFileUpload: React.FC<MultiFileUploadProps> = ({
                       isIconOnly
                       onPress={() => removeFile(file.id!)}
                       isDisabled={isUploading}
+                      data-testid={`remove-file-${selectedFiles.indexOf(file)}`}
                     >
                       <FaTimes />
                     </Button>
@@ -282,6 +289,7 @@ const MultiFileUpload: React.FC<MultiFileUploadProps> = ({
           isDisabled={selectedFiles.length === 0 || isUploading}
           isLoading={isUploading}
           startContent={!isUploading && <FaUpload />}
+          data-testid="upload-files-button"
         >
           {isUploading
             ? "Uploading..."
