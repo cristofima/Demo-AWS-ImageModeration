@@ -1,11 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { screen, fireEvent, waitFor } from "../../utils/test-utils";
-import { render } from "../../utils/test-utils";
+import { screen, fireEvent, waitFor, render } from "../../utils/test-utils";
 import { postService } from "../../services";
 import UploadPage from "./UploadPage";
 import { toast } from "react-toastify";
 
-// Mock the postService
+// Mocks
 vi.mock("../../services/postService", () => ({
   postService: {
     uploadPost: vi.fn(),
@@ -13,7 +12,6 @@ vi.mock("../../services/postService", () => ({
   },
 }));
 
-// Mock MultiFileUpload component
 vi.mock("../../components", () => ({
   MultiFileUpload: ({ onUpload }: { onUpload: (files: File[]) => void }) => (
     <div data-testid="multi-file-upload">
@@ -28,39 +26,44 @@ vi.mock("../../components", () => ({
   ),
 }));
 
+// Helpers
+const setup = () => {
+  render(<UploadPage />);
+  return {
+    fileInput: screen.getByTestId("file-input"),
+    uploadButton: screen.getByTestId("upload-button"),
+  };
+};
+
+const uploadMockFile = async (file: File) => {
+  const { fileInput, uploadButton } = setup();
+  fireEvent.change(fileInput, { target: { files: [file] } });
+  await waitFor(() => expect(uploadButton).not.toBeDisabled());
+  return { fileInput, uploadButton };
+};
+
 describe("UploadPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renders the upload page with single upload tab", () => {
-    render(<UploadPage />);
-
-    expect(screen.getByTestId("file-input")).toBeInTheDocument();
-    expect(screen.getByTestId("upload-button")).toBeInTheDocument();
+    const { fileInput, uploadButton } = setup();
+    expect(fileInput).toBeInTheDocument();
+    expect(uploadButton).toBeInTheDocument();
   });
 
   it("upload button is disabled when no file is selected", () => {
-    render(<UploadPage />);
-
-    const uploadButton = screen.getByTestId("upload-button");
+    const { uploadButton } = setup();
     expect(uploadButton).toBeDisabled();
   });
 
   it("enables upload button when file is selected", async () => {
-    render(<UploadPage />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFile = new File(["dummy content"], "example.jpg", {
       type: "image/jpeg",
     });
 
-    fireEvent.change(fileInput, { target: { files: [mockFile] } });
-
-    await waitFor(() => {
-      const uploadButton = screen.getByTestId("upload-button");
-      expect(uploadButton).not.toBeDisabled();
-    });
+    await uploadMockFile(mockFile);
   });
 
   it("uploads a file successfully", async () => {
@@ -72,21 +75,13 @@ describe("UploadPage", () => {
       config: {} as never,
     });
 
-    render(<UploadPage />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFile = new File(["dummy content"], "example.jpg", {
       type: "image/jpeg",
     });
 
-    fireEvent.change(fileInput, { target: { files: [mockFile] } });
+    const { uploadButton } = await uploadMockFile(mockFile);
 
-    await waitFor(() => {
-      const uploadButton = screen.getByTestId("upload-button");
-      expect(uploadButton).not.toBeDisabled();
-    });
-
-    fireEvent.click(screen.getByTestId("upload-button"));
+    fireEvent.click(uploadButton);
 
     await waitFor(() => {
       expect(postService.uploadPost).toHaveBeenCalled();
@@ -94,14 +89,11 @@ describe("UploadPage", () => {
   });
 
   it("shows error for files that are too large", async () => {
-    render(<UploadPage />);
-
-    const fileInput = screen.getByTestId("file-input");
-    // Create a mock file that's larger than MAX_FILE_SIZE
     const largeFile = new File(["x".repeat(6 * 1024 * 1024)], "large.jpg", {
       type: "image/jpeg",
     });
 
+    const { fileInput } = setup();
     fireEvent.change(fileInput, { target: { files: [largeFile] } });
 
     await waitFor(() => {
@@ -112,13 +104,11 @@ describe("UploadPage", () => {
   });
 
   it("shows error for invalid file types", async () => {
-    render(<UploadPage />);
-
-    const fileInput = screen.getByTestId("file-input");
     const invalidFile = new File(["content"], "document.pdf", {
       type: "application/pdf",
     });
 
+    const { fileInput } = setup();
     fireEvent.change(fileInput, { target: { files: [invalidFile] } });
 
     await waitFor(() => {
@@ -133,21 +123,12 @@ describe("UploadPage", () => {
       new Error("Upload failed")
     );
 
-    render(<UploadPage />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFile = new File(["dummy content"], "example.jpg", {
       type: "image/jpeg",
     });
 
-    fireEvent.change(fileInput, { target: { files: [mockFile] } });
-
-    await waitFor(() => {
-      const uploadButton = screen.getByTestId("upload-button");
-      expect(uploadButton).not.toBeDisabled();
-    });
-
-    fireEvent.click(screen.getByTestId("upload-button"));
+    const { uploadButton } = await uploadMockFile(mockFile);
+    fireEvent.click(uploadButton);
 
     await waitFor(() => {
       expect(postService.uploadPost).toHaveBeenCalled();
@@ -155,9 +136,8 @@ describe("UploadPage", () => {
   });
 
   it("switches between single and multiple upload tabs", async () => {
-    render(<UploadPage />);
+    setup();
 
-    // Check if multiple tab content is available
     const multipleButton = screen.getByText("Multiple Upload");
     fireEvent.click(multipleButton);
 
@@ -188,9 +168,8 @@ describe("UploadPage", () => {
       config: {} as never,
     });
 
-    render(<UploadPage />);
+    setup();
 
-    // Switch to multiple upload tab
     const multipleButton = screen.getByText("Multiple Upload");
     fireEvent.click(multipleButton);
 
@@ -198,7 +177,6 @@ describe("UploadPage", () => {
       expect(screen.getByTestId("multi-file-upload")).toBeInTheDocument();
     });
 
-    // Trigger multiple upload
     const mockUploadButton = screen.getByText("Mock Upload Multiple");
     fireEvent.click(mockUploadButton);
 

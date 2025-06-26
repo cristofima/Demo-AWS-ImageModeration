@@ -1,6 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { screen, fireEvent } from "../../utils/test-utils";
-import { render } from "../../utils/test-utils";
+import { screen, fireEvent, render } from "../../utils/test-utils";
 import { MemoryRouter } from "react-router-dom";
 import NavBar from "./NavBar";
 

@@ -1,6 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { screen, fireEvent, waitFor } from "../../utils/test-utils";
-import { render } from "../../utils/test-utils";
+import { screen, fireEvent, waitFor, render } from "../../utils/test-utils";
 import UserAccountDropdown from "./UserAccountDropdown";
 import { signOut } from "@aws-amplify/auth";
 
@@ -39,23 +38,21 @@ describe("UserAccountDropdown", () => {
     vi.clearAllMocks();
   });
 
+  const renderAndOpenDropdown = () => {
+    render(<UserAccountDropdown />);
+    const avatarButton = screen.getByRole("button");
+    fireEvent.click(avatarButton);
+  };
+
   it("renders user avatar with correct initials", () => {
     render(<UserAccountDropdown />);
-
-    // Look for the Avatar button that contains the user initials
     const avatarButton = screen.getByRole("button");
     expect(avatarButton).toBeInTheDocument();
     expect(avatarButton).toHaveTextContent("JD");
   });
 
   it("displays user information in dropdown", async () => {
-    render(<UserAccountDropdown />);
-
-    // Click on the avatar to open the dropdown
-    const avatarButton = screen.getByRole("button");
-    fireEvent.click(avatarButton);
-
-    // Check for user information in the dropdown
+    renderAndOpenDropdown();
     await waitFor(() => {
       expect(screen.getByText("John Doe")).toBeInTheDocument();
       expect(screen.getByText("john.doe@example.com")).toBeInTheDocument();
@@ -63,12 +60,7 @@ describe("UserAccountDropdown", () => {
   });
 
   it("renders profile and sign out dropdown items", async () => {
-    render(<UserAccountDropdown />);
-
-    // Click on the avatar to open the dropdown
-    const avatarButton = screen.getByRole("button");
-    fireEvent.click(avatarButton);
-
+    renderAndOpenDropdown();
     await waitFor(() => {
       expect(screen.getByText("Profile")).toBeInTheDocument();
       expect(screen.getByText("Log Out")).toBeInTheDocument();
@@ -76,33 +68,18 @@ describe("UserAccountDropdown", () => {
   });
 
   it("navigates to profile page when profile item is clicked", async () => {
-    render(<UserAccountDropdown />);
-
-    // Click on the avatar to open the dropdown
-    const avatarButton = screen.getByRole("button");
-    fireEvent.click(avatarButton);
-
+    renderAndOpenDropdown();
     await waitFor(() => {
       const profileItem = screen.getByText("Profile");
       expect(profileItem).toBeInTheDocument();
     });
-
-    // Note: Since the Profile item uses href="/profile", it would navigate directly
-    // In a real test, we might want to test this differently
   });
 
   it("handles sign out correctly", async () => {
     vi.mocked(signOut).mockResolvedValue();
-
-    render(<UserAccountDropdown />);
-
-    // Click on the avatar to open the dropdown
-    const avatarButton = screen.getByRole("button");
-    fireEvent.click(avatarButton);
-
+    renderAndOpenDropdown();
     await waitFor(() => {
       const signOutItem = screen.getByTestId("logout-button");
-      expect(signOutItem).toBeInTheDocument();
       fireEvent.click(signOutItem);
     });
 
@@ -119,15 +96,9 @@ describe("UserAccountDropdown", () => {
       .mockImplementation(() => {});
     vi.mocked(signOut).mockRejectedValue(new Error("Sign out failed"));
 
-    render(<UserAccountDropdown />);
-
-    // Click on the avatar to open the dropdown
-    const avatarButton = screen.getByRole("button");
-    fireEvent.click(avatarButton);
-
+    renderAndOpenDropdown();
     await waitFor(() => {
       const signOutItem = screen.getByTestId("logout-button");
-      expect(signOutItem).toBeInTheDocument();
       fireEvent.click(signOutItem);
     });
 

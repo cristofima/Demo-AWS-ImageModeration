@@ -1,6 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { screen, fireEvent, waitFor } from "../../utils/test-utils";
-import { render } from "../../utils/test-utils";
+import { screen, fireEvent, waitFor, render } from "../../utils/test-utils";
 import MultiFileUpload from "./MultiFileUpload";
 
 // Mock URL.createObjectURL and URL.revokeObjectURL
@@ -23,9 +22,14 @@ describe("MultiFileUpload", () => {
     vi.clearAllMocks();
   });
 
+  const setupWithFiles = (files: File[]) => {
+    render(<MultiFileUpload {...defaultProps} />);
+    const fileInput = screen.getByTestId("file-input");
+    fireEvent.change(fileInput, { target: { files } });
+  };
+
   it("renders the multi-file upload component", () => {
     render(<MultiFileUpload {...defaultProps} />);
-
     expect(screen.getByText("Select Files")).toBeInTheDocument();
     expect(
       screen.getByText("Drag and drop images here, or click to select")
@@ -33,15 +37,11 @@ describe("MultiFileUpload", () => {
   });
 
   it("allows file selection", async () => {
-    render(<MultiFileUpload {...defaultProps} />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFiles = [
       new File(["content1"], "file1.jpg", { type: "image/jpeg" }),
       new File(["content2"], "file2.png", { type: "image/png" }),
     ];
-
-    fireEvent.change(fileInput, { target: { files: mockFiles } });
+    setupWithFiles(mockFiles);
 
     await waitFor(() => {
       expect(screen.getByText("file1.jpg")).toBeInTheDocument();
@@ -50,21 +50,16 @@ describe("MultiFileUpload", () => {
   });
 
   it("removes files from selection", async () => {
-    render(<MultiFileUpload {...defaultProps} />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFiles = [
       new File(["content1"], "file1.jpg", { type: "image/jpeg" }),
     ];
-
-    fireEvent.change(fileInput, { target: { files: mockFiles } });
+    setupWithFiles(mockFiles);
 
     await waitFor(() => {
       expect(screen.getByText("file1.jpg")).toBeInTheDocument();
     });
 
-    const removeButton = screen.getByTestId("remove-file-0");
-    fireEvent.click(removeButton);
+    fireEvent.click(screen.getByTestId("remove-file-0"));
 
     await waitFor(() => {
       expect(screen.queryByText("file1.jpg")).not.toBeInTheDocument();
@@ -72,21 +67,16 @@ describe("MultiFileUpload", () => {
   });
 
   it("calls onUpload when upload button is clicked", async () => {
-    render(<MultiFileUpload {...defaultProps} />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFiles = [
       new File(["content1"], "file1.jpg", { type: "image/jpeg" }),
     ];
-
-    fireEvent.change(fileInput, { target: { files: mockFiles } });
+    setupWithFiles(mockFiles);
 
     await waitFor(() => {
       expect(screen.getByText("file1.jpg")).toBeInTheDocument();
     });
 
-    const uploadButton = screen.getByTestId("upload-files-button");
-    fireEvent.click(uploadButton);
+    fireEvent.click(screen.getByTestId("upload-files-button"));
 
     expect(mockOnUpload).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -100,21 +90,16 @@ describe("MultiFileUpload", () => {
 
   it("disables upload button when no files selected", () => {
     render(<MultiFileUpload {...defaultProps} />);
-
-    const uploadButton = screen.getByTestId("upload-files-button");
-    expect(uploadButton).toBeDisabled();
+    expect(screen.getByTestId("upload-files-button")).toBeDisabled();
   });
 
   it("validates file types", async () => {
     const { toast } = await import("react-toastify");
-    render(<MultiFileUpload {...defaultProps} />);
 
-    const fileInput = screen.getByTestId("file-input");
     const invalidFile = new File(["content"], "document.pdf", {
       type: "application/pdf",
     });
-
-    fireEvent.change(fileInput, { target: { files: [invalidFile] } });
+    setupWithFiles([invalidFile]);
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
@@ -125,15 +110,11 @@ describe("MultiFileUpload", () => {
 
   it("validates file size", async () => {
     const { toast } = await import("react-toastify");
-    render(<MultiFileUpload {...defaultProps} />);
 
-    const fileInput = screen.getByTestId("file-input");
-    // Create a large file (>5MB)
     const largeFile = new File(["x".repeat(6 * 1024 * 1024)], "large.jpg", {
       type: "image/jpeg",
     });
-
-    fireEvent.change(fileInput, { target: { files: [largeFile] } });
+    setupWithFiles([largeFile]);
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
@@ -143,12 +124,8 @@ describe("MultiFileUpload", () => {
   });
 
   it("shows file previews for images", async () => {
-    render(<MultiFileUpload {...defaultProps} />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFile = new File(["content"], "image.jpg", { type: "image/jpeg" });
-
-    fireEvent.change(fileInput, { target: { files: [mockFile] } });
+    setupWithFiles([mockFile]);
 
     await waitFor(() => {
       expect(screen.getByTestId("file-preview-0")).toBeInTheDocument();
@@ -157,13 +134,11 @@ describe("MultiFileUpload", () => {
 
   it("handles drag and drop", async () => {
     render(<MultiFileUpload {...defaultProps} />);
-
     const dropZone = screen.getByTestId("drop-zone");
     const mockFiles = [
       new File(["content"], "dropped.jpg", { type: "image/jpeg" }),
     ];
 
-    // Create a mock DataTransfer object
     const mockDataTransfer = {
       files: mockFiles,
     } as unknown as DataTransfer;
@@ -177,37 +152,29 @@ describe("MultiFileUpload", () => {
 
   it("prevents default drag behaviors", () => {
     render(<MultiFileUpload {...defaultProps} />);
-
     const dropZone = screen.getByTestId("drop-zone");
 
-    // Test that dragOver handler is present and prevents default
     const dragOverHandler = vi.fn((e) => e.preventDefault());
     dropZone.addEventListener("dragover", dragOverHandler);
 
     fireEvent.dragOver(dropZone);
 
-    // Check that the event was handled (the component should prevent default internally)
-    expect(dropZone).toBeInTheDocument(); // Just verify the component is working
+    expect(dropZone).toBeInTheDocument(); // Smoke test for component presence
   });
 
   it("clears all files when clear button is clicked", async () => {
-    render(<MultiFileUpload {...defaultProps} />);
-
-    const fileInput = screen.getByTestId("file-input");
     const mockFiles = [
       new File(["content1"], "file1.jpg", { type: "image/jpeg" }),
       new File(["content2"], "file2.jpg", { type: "image/jpeg" }),
     ];
-
-    fireEvent.change(fileInput, { target: { files: mockFiles } });
+    setupWithFiles(mockFiles);
 
     await waitFor(() => {
       expect(screen.getByText("file1.jpg")).toBeInTheDocument();
       expect(screen.getByText("file2.jpg")).toBeInTheDocument();
     });
 
-    const clearButton = screen.getByTestId("clear-files-button");
-    fireEvent.click(clearButton);
+    fireEvent.click(screen.getByTestId("clear-files-button"));
 
     await waitFor(() => {
       expect(screen.queryByText("file1.jpg")).not.toBeInTheDocument();

@@ -1,6 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { screen, waitFor, fireEvent } from "../../utils/test-utils";
-import { render } from "../../utils/test-utils";
+import { screen, waitFor, fireEvent, render } from "../../utils/test-utils";
 import ImageModal from "./ImageModal";
 import { mockPost } from "../../utils/test-data";
 

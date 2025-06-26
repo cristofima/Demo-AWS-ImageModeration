@@ -1,6 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { screen, fireEvent, waitFor } from "../../utils/test-utils";
-import { render } from "../../utils/test-utils";
+import { screen, fireEvent, waitFor, render } from "../../utils/test-utils";
 import ProfilePage from "./ProfilePage";
 import { updateUserAttributes } from "@aws-amplify/auth";
 
